@@ -1,6 +1,5 @@
 """Stage 1.2 contract tests; use fictional products only."""
 
-import json
 from decimal import Decimal
 from pathlib import Path
 
@@ -64,8 +63,8 @@ def test_preferences_are_explicit_and_validated():
     request = UserPreferences.model_validate({
         "request": "Fragrance-free lotion below $30",
         "max_budget_usd": Decimal("30.00"),
-        "required_attributes": ["fragrance_free"],
-        "excluded_product_ids": ["SYN-002"],
+        "required_attributes": {"fragrance_free"},
+        "excluded_product_ids": {"SYN-002"},
     })
     assert request.max_budget_usd == Decimal("30.00")
     assert "fragrance_free" in request.required_attributes
@@ -97,5 +96,5 @@ def test_catalog_rejects_dangling_or_invalid_field_evidence():
 
 def test_contract_roundtrip_json():
     original = Catalog.model_validate({"products": [product()], "evidence": [evidence()]})
-    reconstructed = Catalog.model_validate(json.loads(original.model_dump_json()))
+    reconstructed = Catalog.model_validate_json(original.model_dump_json())
     assert reconstructed == original
