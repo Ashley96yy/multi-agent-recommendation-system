@@ -19,7 +19,7 @@ def product(**overrides):
         "title": "Test Lotion",
         "brand": "Test Brand",
         "category": "moisturizer",
-        "price_usd": "9.99",
+        "price_usd": Decimal("9.99"),
         "attributes": {"fragrance_free": True},
     }
     payload.update(overrides)
@@ -50,7 +50,7 @@ def test_sample_catalog_loads_and_preserves_unknowns():
 
 def test_products_reject_negative_prices_and_unknown_keys():
     with pytest.raises(ValidationError):
-        Product.model_validate(product(price_usd="-1"))
+        Product.model_validate(product(price_usd=Decimal("-1")))
     with pytest.raises(ValidationError):
         Product.model_validate(product(invented_field="not allowed"))
 
@@ -63,7 +63,7 @@ def test_product_rejects_blank_identifiers():
 def test_preferences_are_explicit_and_validated():
     request = UserPreferences.model_validate({
         "request": "Fragrance-free lotion below $30",
-        "max_budget_usd": "30.00",
+        "max_budget_usd": Decimal("30.00"),
         "required_attributes": ["fragrance_free"],
         "excluded_product_ids": ["SYN-002"],
     })
@@ -72,7 +72,7 @@ def test_preferences_are_explicit_and_validated():
     with pytest.raises(ValidationError):
         UserPreferences.model_validate({"request": "  "})
     with pytest.raises(ValidationError):
-        UserPreferences.model_validate({"request": "anything", "max_budget_usd": "-0.01"})
+        UserPreferences.model_validate({"request": "anything", "max_budget_usd": Decimal("-0.01")})
 
 
 def test_catalog_rejects_duplicate_products_and_evidence_ids():
