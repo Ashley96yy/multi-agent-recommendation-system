@@ -32,6 +32,7 @@ class UserPreferences(Contract):
     request: str = Field(min_length=1)
     max_budget_usd: Decimal | None = Field(default=None, ge=0, allow_inf_nan=False)
     required_attributes: set[str] = Field(default_factory=set)
+    required_category: str | None = None
     excluded_product_ids: set[str] = Field(default_factory=set)
     excluded_brands: set[str] = Field(default_factory=set)
 
@@ -39,6 +40,8 @@ class UserPreferences(Contract):
     def check_preferences(self) -> "UserPreferences":
         if not self.request.strip():
             raise ValueError("request must not be whitespace")
+        if self.required_category is not None and not self.required_category.strip():
+            raise ValueError("required_category must not be whitespace")
         for group in (
             self.required_attributes,
             self.excluded_product_ids,
