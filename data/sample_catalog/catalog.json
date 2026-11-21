@@ -1,0 +1,54 @@
+{
+  "products": [
+    {
+      "product_id": "SYN-001",
+      "title": "Sample Fragrance-Free Daily Moisturizer",
+      "brand": "Example Labs",
+      "category": "moisturizer",
+      "price_usd": "24.50",
+      "attributes": {"fragrance_free": true}
+    },
+    {
+      "product_id": "SYN-002",
+      "title": "Sample Botanical Face Lotion",
+      "brand": "Example Botanics",
+      "category": "moisturizer",
+      "price_usd": "18.00",
+      "attributes": {"fragrance_free": false}
+    },
+    {
+      "product_id": "SYN-003",
+      "title": "Sample Daily Facial Cream",
+      "brand": "Example Studio",
+      "category": "moisturizer",
+      "price_usd": null,
+      "attributes": {}
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "E-SYN-001",
+      "product_id": "SYN-001",
+      "source_id": "synthetic-product-sheet-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "attributes.fragrance_free",
+      "excerpt": "Synthetic specification: fragrance-free formula."
+    },
+    {
+      "evidence_id": "E-SYN-002",
+      "product_id": "SYN-001",
+      "source_id": "synthetic-product-sheet-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Synthetic listed price: USD 24.50."
+    },
+    {
+      "evidence_id": "E-SYN-003",
+      "product_id": "SYN-002",
+      "source_id": "synthetic-product-sheet-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "attributes.fragrance_free",
+      "excerpt": "Synthetic specification: contains fragrance."
+    }
+  ]
+}
