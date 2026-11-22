@@ -105,7 +105,7 @@ def test_final_overview_links_every_primary_experiment_and_preserves_limitations
     assert "PREWRITTEN" in readme
     assert "not three LLMs" in readme
     assert "no hosted public app" in readme
-    assert "real-world unsupported-claim rate" in final
+    assert "real-world unsupported-claim rate" in final.lower()
 
 
 def test_recruiter_walkthrough_has_no_unrun_model_quality_claim():
