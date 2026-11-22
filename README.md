@@ -42,6 +42,7 @@ and fixed scenarios using three controlled configurations:
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Typed atomic claim evaluation | Measured on fictional authored labels | 26 cases: 22 typed supported/contradicted/unsupported/ambiguous, 4 open-text human-review abstentions; 22/22 typed fixture agreement, not real semantic accuracy |
 | Model-based atomic claim Critic (Stage 3.5) | Real pinned-Qwen negative result measured | 26 real calls; 3/26 valid four-class outputs, 0/26 author-label matches; extremely ambiguity-biased, no real groundedness claim |
+| Token-constrained label Critic (Stage 3.6) | Code and unit tests complete; real evaluation executing | Three 26-case genuine Qwen arms isolate prompt and decoding constraints; only labels (not full JSON rationale) are constrained |
 | Independent human calibration | Review workflow prepared, no actual reviews yet | Separate blank Reviewer A/B packets, source hashes, complete reviewer labeling validation, Cohen's kappa and blind independent review protocol; no human-calibrated score claimed |
 | Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
 | Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
@@ -277,6 +278,37 @@ python -m recsys.evaluation.human_calibration \
   --packet-dir artifacts/evaluation/stage35-blind-review
 ```
 
+## Stage 3.6 — Prompt reliability and true token-constrained labels
+
+This stage introduces a **separate experimental classifier** over the same
+26 author-labeled fictional atomic claims, without modifying the Stage 3.5
+negative result. Three real-model variants are compared:
+
+1. A brief **label-only** instruction, no decoding constraints.
+2. A clearer evidence-decision **label-only** instruction, no constraints.
+3. The **identical** second instruction with `prefix_allowed_tokens_fn`
+   restricting generated tokens to exactly four canonical labels plus EOS.
+
+The third variant genuinely restricts Qwen's **next-token choices**.
+It is not JSON-schema-constrained rationale generation, synonym mapping,
+or post-hoc error repair. All three output **labels only**, unlike Stage
+3.5's historical JSON-with-rationale contract, so cross-stage changes
+cannot be attributed to prompt wording alone.
+
+The experimental objective is to separate valid-label output rate from
+agreement with authored source labels. Per-case raw outputs, actual model
+calls, tokens, latencies and confusions are preserved. This is an
+**exploratory same-fixture comparison** and cannot establish human-calibrated
+real-world factual accuracy. See [the Stage 3.6 experimental protocol](
+docs/stage36_constrained_label_protocol.md).
+
+```bash
+python -m pip install -e ".[dev,local-llm]"
+python -m pytest
+python -m recsys.evaluation.run_label_ablation \
+  --output artifacts/evaluation/stage36-real-qwen-label-ablation.json
+```
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -309,6 +341,7 @@ python -m recsys.evaluation.human_calibration \
 - [Stage 3.4 authored atomic-claim audit and blind human-review protocol](docs/stage34_atomic_claim_grounding_20261122.md)
 - [Stage 3.5 real Qwen atomic Critic and independent human-review protocol](docs/stage35_model_critic_protocol.md)
 - [Measured Stage 3.5 real Qwen 0/26 failure analysis](docs/stage35_real_qwen_critic_results_20261122.md)
+- [Stage 3.6 prompt and true token-label constraint evaluation protocol](docs/stage36_constrained_label_protocol.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
