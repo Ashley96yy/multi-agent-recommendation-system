@@ -1,0 +1,315 @@
+{
+  "schema_version": 1,
+  "suite_id": "atomic-claims-fictional-v1",
+  "catalog_path": "data/source_evidence_demo/catalog.json",
+  "sources_path": "data/source_evidence_demo/source_documents.json",
+  "description": "26 manually written atomic claim examples: 22 explicit typed facts and 4 free-text claims; never used as model training data or real-world evidence.",
+  "cases": [
+    {
+      "case_id": "T01",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "The fictional product is fragrance-free.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-001"
+      ]
+    },
+    {
+      "case_id": "T02",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "It is labeled suitable for sensitive skin.",
+      "claim_span": "suitable for sensitive skin",
+      "field": "attributes.sensitive_skin",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-002"
+      ]
+    },
+    {
+      "case_id": "T03",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "Its listed price is USD 21.00.",
+      "claim_span": "USD 21.00",
+      "field": "price_usd",
+      "asserted_value": "21.00",
+      "evidence_ids": [
+        "E-SOURCE-003"
+      ]
+    },
+    {
+      "case_id": "T04",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "The fictional balm supports the skin barrier.",
+      "claim_span": "supports the skin barrier",
+      "field": "attributes.barrier_support",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-005"
+      ]
+    },
+    {
+      "case_id": "T05",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "It has a fictional list price of USD 24.00.",
+      "claim_span": "USD 24.00",
+      "field": "price_usd",
+      "asserted_value": "24.00",
+      "evidence_ids": [
+        "E-SOURCE-006"
+      ]
+    },
+    {
+      "case_id": "T06",
+      "kind": "typed",
+      "product_id": "SYN-E03",
+      "reason": "The sunscreen package says it has no added fragrance.",
+      "claim_span": "no added fragrance",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-011"
+      ]
+    },
+    {
+      "case_id": "T07",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "This cream contains added fragrance.",
+      "claim_span": "contains added fragrance",
+      "field": "attributes.fragrance_free",
+      "asserted_value": false,
+      "evidence_ids": [
+        "E-SOURCE-001"
+      ]
+    },
+    {
+      "case_id": "T08",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "It is not suitable for sensitive skin.",
+      "claim_span": "not suitable for sensitive skin",
+      "field": "attributes.sensitive_skin",
+      "asserted_value": false,
+      "evidence_ids": [
+        "E-SOURCE-002"
+      ]
+    },
+    {
+      "case_id": "T09",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "This balm does not support the skin barrier.",
+      "claim_span": "does not support the skin barrier",
+      "field": "attributes.barrier_support",
+      "asserted_value": false,
+      "evidence_ids": [
+        "E-SOURCE-005"
+      ]
+    },
+    {
+      "case_id": "T10",
+      "kind": "typed",
+      "product_id": "SYN-E03",
+      "reason": "The sunscreen uses mineral UV filters.",
+      "claim_span": "mineral UV filters",
+      "field": "attributes.mineral",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-008"
+      ]
+    },
+    {
+      "case_id": "T11",
+      "kind": "typed",
+      "product_id": "SYN-E03",
+      "reason": "The current sunscreen formula is mineral.",
+      "claim_span": "formula is mineral",
+      "field": "attributes.mineral",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-010"
+      ]
+    },
+    {
+      "case_id": "T12",
+      "kind": "typed",
+      "product_id": "SYN-E04",
+      "reason": "The cleanser is fragrance-free.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-012"
+      ]
+    },
+    {
+      "case_id": "T13",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "This cream is fragrance-free.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-003"
+      ]
+    },
+    {
+      "case_id": "T14",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "The formula is suitable for sensitive skin.",
+      "claim_span": "suitable for sensitive skin",
+      "field": "attributes.sensitive_skin",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-001"
+      ]
+    },
+    {
+      "case_id": "T15",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "The cream has no added fragrance.",
+      "claim_span": "no added fragrance",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-001",
+        "E-SOURCE-007"
+      ]
+    },
+    {
+      "case_id": "T16",
+      "kind": "typed",
+      "product_id": "SYN-E03",
+      "reason": "The sunscreen currently costs USD 19.00.",
+      "claim_span": "USD 19.00",
+      "field": "price_usd",
+      "asserted_value": "19.00",
+      "evidence_ids": [
+        "E-SOURCE-009"
+      ]
+    },
+    {
+      "case_id": "T17",
+      "kind": "typed",
+      "product_id": "SYN-E01",
+      "reason": "The product is fragrance-free.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": []
+    },
+    {
+      "case_id": "T18",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "The balm is fragrance-free.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-004"
+      ]
+    },
+    {
+      "case_id": "T19",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "The balm includes added fragrance.",
+      "claim_span": "includes added fragrance",
+      "field": "attributes.fragrance_free",
+      "asserted_value": false,
+      "evidence_ids": [
+        "E-SOURCE-007"
+      ]
+    },
+    {
+      "case_id": "T20",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "The fragrance-free label is accurate.",
+      "claim_span": "fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-004",
+        "E-SOURCE-007"
+      ]
+    },
+    {
+      "case_id": "T21",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "This batch is not fragrance-free.",
+      "claim_span": "not fragrance-free",
+      "field": "attributes.fragrance_free",
+      "asserted_value": false,
+      "evidence_ids": [
+        "E-SOURCE-004",
+        "E-SOURCE-007"
+      ]
+    },
+    {
+      "case_id": "T22",
+      "kind": "typed",
+      "product_id": "SYN-E02",
+      "reason": "The balm has no added fragrance.",
+      "claim_span": "no added fragrance",
+      "field": "attributes.fragrance_free",
+      "asserted_value": true,
+      "evidence_ids": [
+        "E-SOURCE-005"
+      ]
+    },
+    {
+      "case_id": "F23",
+      "kind": "open_text",
+      "product_id": "SYN-E01",
+      "reason": "This cream is clinically proven to cure eczema.",
+      "claim_span": "clinically proven to cure eczema",
+      "evidence_ids": [
+        "E-SOURCE-001"
+      ]
+    },
+    {
+      "case_id": "F24",
+      "kind": "open_text",
+      "product_id": "SYN-E02",
+      "reason": "The balm may or may not contain added fragrance.",
+      "claim_span": "may or may not contain added fragrance",
+      "evidence_ids": [
+        "E-SOURCE-004",
+        "E-SOURCE-007"
+      ]
+    },
+    {
+      "case_id": "F25",
+      "kind": "open_text",
+      "product_id": "SYN-E01",
+      "reason": "The fictional spec says this cream is made without added fragrance.",
+      "claim_span": "made without added fragrance",
+      "evidence_ids": [
+        "E-SOURCE-001"
+      ]
+    },
+    {
+      "case_id": "F26",
+      "kind": "open_text",
+      "product_id": "SYN-E03",
+      "reason": "The revised sunscreen uses non-mineral UV filters.",
+      "claim_span": "uses non-mineral UV filters",
+      "evidence_ids": [
+        "E-SOURCE-010"
+      ]
+    }
+  ]
+}
