@@ -1,0 +1,45 @@
+name: Semantic Retrieval Evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/semantic-retrieval-eval
+    paths:
+      - 'src/recsys/retrieval/**'
+      - 'src/recsys/evaluation/**'
+      - 'src/recsys/schemas/**'
+      - 'data/retrieval_eval/**'
+      - 'pyproject.toml'
+      - '.github/workflows/semantic-eval.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mini-lm-eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install semantic dependencies
+        run: python -m pip install -e ".[semantic]"
+      - name: Compare offline lexical and pretrained MiniLM
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+          TOKENIZERS_PARALLELISM: 'false'
+        run: |
+          python -m recsys.evaluation.run_retrieval --backend hashing --output artifacts/evaluation/hashing.json
+          python -m recsys.evaluation.run_retrieval --backend minilm --device cpu --revision 826711e54e001c83835913827a843d8dd0a1def9 --output artifacts/evaluation/minilm.json
+      - name: Upload real experiment outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-retrieval-evaluation
+          path: artifacts/evaluation/*.json
+          if-no-files-found: warn

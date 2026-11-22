@@ -1,0 +1,227 @@
+{
+  "suite_id": "synthetic-retrieval-v1",
+  "description": "Author-constructed synthetic product retrieval relevance cases, not independently adjudicated real-world relevance.",
+  "cases": [
+    {
+      "case_id": "Q01",
+      "preferences": {
+        "request": "non-perfumed face moisturizer for daily use",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "25.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R01",
+        "SYN-R12"
+      ]
+    },
+    {
+      "case_id": "Q02",
+      "preferences": {
+        "request": "mineral sunblock to shield my face from UV rays",
+        "required_category": "sunscreen",
+        "required_attributes": [
+          "mineral"
+        ],
+        "max_budget_usd": "25.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R04"
+      ]
+    },
+    {
+      "case_id": "Q03",
+      "preferences": {
+        "request": "take off cosmetics gently with no perfume",
+        "required_category": "cleanser",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "relevant_product_ids": [
+        "SYN-R15"
+      ]
+    },
+    {
+      "case_id": "Q04",
+      "preferences": {
+        "request": "extra hydration in a facial serum",
+        "required_category": "serum",
+        "max_budget_usd": "30.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R08"
+      ]
+    },
+    {
+      "case_id": "Q05",
+      "preferences": {
+        "request": "vitamin C serum for a brighter looking complexion",
+        "required_category": "serum",
+        "max_budget_usd": "50.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R09"
+      ]
+    },
+    {
+      "case_id": "Q06",
+      "preferences": {
+        "request": "fruity scented body lotion",
+        "required_category": "moisturizer",
+        "max_budget_usd": "20.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R02"
+      ]
+    },
+    {
+      "case_id": "Q07",
+      "preferences": {
+        "request": "face wash to manage oil and shine",
+        "required_category": "cleanser",
+        "max_budget_usd": "20.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R07"
+      ]
+    },
+    {
+      "case_id": "Q08",
+      "preferences": {
+        "request": "exfoliating toner with salicylic acid",
+        "required_category": "toner",
+        "max_budget_usd": "20.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R10"
+      ]
+    },
+    {
+      "case_id": "Q09",
+      "preferences": {
+        "request": "rich body moisturizing butter",
+        "required_category": "moisturizer",
+        "max_budget_usd": "30.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R03"
+      ]
+    },
+    {
+      "case_id": "Q10",
+      "preferences": {
+        "request": "soothing salve to support the skin barrier",
+        "required_category": "balm",
+        "max_budget_usd": "35.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R11"
+      ]
+    },
+    {
+      "case_id": "Q11",
+      "preferences": {
+        "request": "small packable unscented face cream for travel",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free",
+          "travel_size"
+        ],
+        "max_budget_usd": "15.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R12"
+      ]
+    },
+    {
+      "case_id": "Q12",
+      "preferences": {
+        "request": "lightweight gel for daytime UV protection",
+        "required_category": "sunscreen",
+        "max_budget_usd": "30.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R05"
+      ]
+    },
+    {
+      "case_id": "Q13",
+      "preferences": {
+        "request": "gentle facial cream cleanser without added scent",
+        "required_category": "cleanser",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "15.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R06"
+      ]
+    },
+    {
+      "case_id": "Q14",
+      "preferences": {
+        "request": "unscented moisturizer under twenty dollars",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "20.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R12"
+      ]
+    },
+    {
+      "case_id": "Q15",
+      "preferences": {
+        "request": "affordable perfume free hydrating facial lotion",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "25.00"
+      },
+      "relevant_product_ids": [
+        "SYN-R01",
+        "SYN-R12"
+      ]
+    }
+  ],
+  "no_match_cases": [
+    {
+      "case_id": "N01",
+      "preferences": {
+        "request": "moisturizer under five dollars",
+        "required_category": "moisturizer",
+        "max_budget_usd": "5.00"
+      },
+      "expected_reason": "no_eligible_products"
+    },
+    {
+      "case_id": "N02",
+      "preferences": {
+        "request": "mineral sunscreen with a travel size label",
+        "required_category": "sunscreen",
+        "required_attributes": [
+          "travel_size"
+        ]
+      },
+      "expected_reason": "no_eligible_products"
+    },
+    {
+      "case_id": "N03",
+      "preferences": {
+        "request": "sunscreen excluding both brands",
+        "required_category": "sunscreen",
+        "excluded_brands": [
+          "Sample Sun"
+        ]
+      },
+      "expected_reason": "no_eligible_products"
+    }
+  ]
+}
