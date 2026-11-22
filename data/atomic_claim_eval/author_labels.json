@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "suite_id": "atomic-claims-fictional-v1",
+  "annotation_source": "Author-written case labels for fictional source passages. No independent human reviewer or inter-annotator agreement; labels are not real-world truth.",
+  "labels": [
+    {
+      "case_id": "T01",
+      "label": "supported",
+      "rationale": "Active fictional specification explicitly says no added fragrance."
+    },
+    {
+      "case_id": "T02",
+      "label": "supported",
+      "rationale": "Source label says suitable for sensitive skin, not a clinical outcome."
+    },
+    {
+      "case_id": "T03",
+      "label": "supported",
+      "rationale": "Active authored catalog specification lists USD 21.00."
+    },
+    {
+      "case_id": "T04",
+      "label": "supported",
+      "rationale": "An active fiction-only spec supports this narrowly annotated attribute."
+    },
+    {
+      "case_id": "T05",
+      "label": "supported",
+      "rationale": "Active spec explicitly lists USD 24.00."
+    },
+    {
+      "case_id": "T06",
+      "label": "supported",
+      "rationale": "Non-superseded fictional package label asserts no added fragrance."
+    },
+    {
+      "case_id": "T07",
+      "label": "contradicted",
+      "rationale": "The active specification explicitly states no added fragrance."
+    },
+    {
+      "case_id": "T08",
+      "label": "contradicted",
+      "rationale": "Opposite of the active annotated label."
+    },
+    {
+      "case_id": "T09",
+      "label": "contradicted",
+      "rationale": "Active source asserts the opposite of the typed negative claim."
+    },
+    {
+      "case_id": "T10",
+      "label": "contradicted",
+      "rationale": "New revision supersedes the old mineral assertion and says non-mineral."
+    },
+    {
+      "case_id": "T11",
+      "label": "contradicted",
+      "rationale": "Explicit newer source says non-mineral, despite stale metadata."
+    },
+    {
+      "case_id": "T12",
+      "label": "unsupported",
+      "rationale": "Only a price listing exists; no fragrance assertion in the authored source."
+    },
+    {
+      "case_id": "T13",
+      "label": "unsupported",
+      "rationale": "Price citation cannot substantiate fragrance even if a different source does."
+    },
+    {
+      "case_id": "T14",
+      "label": "unsupported",
+      "rationale": "Cited source ID is indexed to fragrance, not sensitive-skin attribute."
+    },
+    {
+      "case_id": "T15",
+      "label": "unsupported",
+      "rationale": "A correct citation is mixed with another product's citation."
+    },
+    {
+      "case_id": "T16",
+      "label": "unsupported",
+      "rationale": "The price excerpt belongs to a fully superseded document with no current price record."
+    },
+    {
+      "case_id": "T17",
+      "label": "unsupported",
+      "rationale": "A true, documented fact is uncited in this individual claim."
+    },
+    {
+      "case_id": "T18",
+      "label": "ambiguous",
+      "rationale": "Active spec asserts true while batch QC asserts false."
+    },
+    {
+      "case_id": "T19",
+      "label": "ambiguous",
+      "rationale": "Active spec and QC assert opposite values."
+    },
+    {
+      "case_id": "T20",
+      "label": "ambiguous",
+      "rationale": "Cited active sources conflict with one another."
+    },
+    {
+      "case_id": "T21",
+      "label": "ambiguous",
+      "rationale": "No generalized unambiguous product value from active conflicting declarations."
+    },
+    {
+      "case_id": "T22",
+      "label": "ambiguous",
+      "rationale": "Even with wrong-field citation the underlying authored evidence is conflicting; requires review."
+    },
+    {
+      "case_id": "F23",
+      "label": "unsupported",
+      "rationale": "No clinical evidence exists; author-annotated unsupported open-text claim."
+    },
+    {
+      "case_id": "F24",
+      "label": "ambiguous",
+      "rationale": "Authored open-text uncertainty corresponds to contradictory active source statements."
+    },
+    {
+      "case_id": "F25",
+      "label": "supported",
+      "rationale": "Author notes this is a close paraphrase of the source passage."
+    },
+    {
+      "case_id": "F26",
+      "label": "supported",
+      "rationale": "Open text matches new source, but automatic typed-only judge intentionally abstains."
+    }
+  ]
+}
