@@ -136,7 +136,8 @@ def evaluate_baseline(rag: SingleAgentRAG, cases: list[BaselineCase], *, top_k: 
     coverage = [row["required_attribute_field_coverage"] for row in records
                 if row["required_attribute_field_coverage"] is not None]
     red_team_with_forbidden = [row for row, case in zip(records, cases)
-                               if case.group == "red_team" and case.forbidden_phrases]
+                               if case.group == "red_team" and case.forbidden_phrases
+                               and row["status"] == "accepted"]
     return {
         "case_count": len(records),
         "normal_count": len(normals),
