@@ -1,0 +1,61 @@
+name: Qwen Single-Agent Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/real-qwen-single-agent
+    paths:
+      - '.github/workflows/qwen-single-agent.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  real-qwen-cpu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      HF_HUB_ENABLE_HF_TRANSFER: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU-only PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned model runtime
+        run: python -m pip install -e ".[semantic,local-llm]"
+      - name: Run real MiniLM retrieval and Qwen generation on synthetic cases
+        run: |
+          python -m recsys.evaluation.run_single_agent \
+            --retrieval-backend minilm \
+            --max-new-tokens 240 \
+            --output artifacts/evaluation/qwen-single-agent.json
+      - name: Check for genuine model generation and an accepted recommendation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("artifacts/evaluation/qwen-single-agent.json").read_text())
+          assert result["model_invocations"] == 2, "expected two real Qwen calls"
+          assert result["positive_accept_rate"] > 0, "no positive Qwen response survived validation"
+          assert all(
+              row["generated_tokens"] is not None and row["generated_tokens"] > 0
+              for row in result["per_case"] if row["model_invocations"]
+          ), "a Qwen invocation produced no measured tokens"
+          print("Confirmed real Qwen model generation and accepted structured recommendation")
+          PY
+      - name: Upload actual model outputs and measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qwen-single-agent-real-cpu
+          path: artifacts/evaluation/qwen-single-agent.json
+          if-no-files-found: warn
