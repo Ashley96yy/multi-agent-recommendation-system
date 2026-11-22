@@ -221,6 +221,13 @@ no semantic extraction was evaluated, and no independent annotator has
 reviewed the cases. A 26-row blind-review CSV was generated with cited
 excerpts but without the author's gold labels.
 
+Separately, the original **real Qwen** Stage 3.3 output artifact was read
+without any new generation. A second blinded review CSV now contains **15
+actual model recommendation reasons from 9 previously approved cases**,
+plus their source excerpts. These are complete reasons, **not 15 labeled
+atomic claims**: all per-claim extraction/reviewer fields remain blank,
+and the model's factual groundedness is **still unmeasured**.
+
 See the [Stage 3.4 evaluation protocol and real offline results](
 docs/stage34_atomic_claim_grounding_20261122.md).
 
