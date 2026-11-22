@@ -10,6 +10,10 @@ source-grounded product recommendation and a controlled comparison of
 > atomic-claim Critic** was evaluated in Stage 3.5 and **failed** its strict
 > four-class contract: only 3/26 outputs were schema-valid, and **0/26**
 > matched the author-written case labels. No improvement is claimed.
+> In Stage 3.6, a separate **78-call real Qwen** ablation tested
+> label-only prompt engineering and true token-constrained decoding:
+> the stronger prompt produced 26/26 valid labels but only **8/26**
+> author-label matches; adding token masking changed **no predictions**.
 > Real recommendation-prose groundedness and independent human-calibrated
 > accuracy **have not been measured**. This is not three LLM agents
 > collaborating end to end.
@@ -42,7 +46,7 @@ and fixed scenarios using three controlled configurations:
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Typed atomic claim evaluation | Measured on fictional authored labels | 26 cases: 22 typed supported/contradicted/unsupported/ambiguous, 4 open-text human-review abstentions; 22/22 typed fixture agreement, not real semantic accuracy |
 | Model-based atomic claim Critic (Stage 3.5) | Real pinned-Qwen negative result measured | 26 real calls; 3/26 valid four-class outputs, 0/26 author-label matches; extremely ambiguity-biased, no real groundedness claim |
-| Token-constrained label Critic (Stage 3.6) | Code and unit tests complete; real evaluation executing | Three 26-case genuine Qwen arms isolate prompt and decoding constraints; only labels (not full JSON rationale) are constrained |
+| Stage 3.6 prompt / true token-label ablation | Real 78-call Qwen experiment measured | Brief prompt 18/26 canonical labels, 7/26 author matches; decision prompt 26/26 labels, 8/26 matches; same prompt + token mask identical predictions, 8/26 matches |
 | Independent human calibration | Review workflow prepared, no actual reviews yet | Separate blank Reviewer A/B packets, source hashes, complete reviewer labeling validation, Cohen's kappa and blind independent review protocol; no human-calibrated score claimed |
 | Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
 | Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
@@ -295,12 +299,21 @@ or post-hoc error repair. All three output **labels only**, unlike Stage
 3.5's historical JSON-with-rationale contract, so cross-stage changes
 cannot be attributed to prompt wording alone.
 
-The experimental objective is to separate valid-label output rate from
-agreement with authored source labels. Per-case raw outputs, actual model
-calls, tokens, latencies and confusions are preserved. This is an
-**exploratory same-fixture comparison** and cannot establish human-calibrated
-real-world factual accuracy. See [the Stage 3.6 experimental protocol](
-docs/stage36_constrained_label_protocol.md).
+The **completed real 78-call CPU experiment** found **18/26 valid
+labels and 7/26 author-label matches** with the brief prompt,
+versus **26/26 valid labels and 8/26 matches** with the improved
+decision prompt. With the exact same improved prompt, the true token
+constraint returned **identical predictions on all 26 cases**:
+26/26 valid labels, still only 8/26 author-label matches. Both improved
+arms predicted `ambiguous` **zero times**, despite six ambiguous
+reference cases. More reliable formatting therefore **did not make
+this a trustworthy semantic evidence Critic**.
+
+Per-case raw outputs, actual model calls, tokens, latency and confusions
+are preserved. These are **exploratory same-fixture author-label results**,
+not human-calibrated factual accuracy. See [the experiment protocol](
+docs/stage36_constrained_label_protocol.md) and [the measured negative
+semantic result](docs/stage36_real_qwen_results_20261122.md).
 
 ```bash
 python -m pip install -e ".[dev,local-llm]"
@@ -342,6 +355,7 @@ python -m recsys.evaluation.run_label_ablation \
 - [Stage 3.5 real Qwen atomic Critic and independent human-review protocol](docs/stage35_model_critic_protocol.md)
 - [Measured Stage 3.5 real Qwen 0/26 failure analysis](docs/stage35_real_qwen_critic_results_20261122.md)
 - [Stage 3.6 prompt and true token-label constraint evaluation protocol](docs/stage36_constrained_label_protocol.md)
+- [Measured Stage 3.6 78-call Qwen prompt and label-decoding outcomes](docs/stage36_real_qwen_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
