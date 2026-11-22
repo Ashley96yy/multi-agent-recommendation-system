@@ -58,6 +58,8 @@ jobs:
           assert data["no_revision_is_projection_not_second_model_run"] is True
           assert data["first_draft_model_invocations"] == 19
           assert 0 <= data["revision_model_invocations"] <= 19
+          assert data["zero_revision"]["logical_generator_attempts"] == 19
+          assert data["one_revision"]["logical_generator_attempts"] == 19 + data["revision_model_invocations"]
           assert data["physical_model_invocations"] == (
               data["first_draft_model_invocations"] + data["revision_model_invocations"]
           )
@@ -77,6 +79,7 @@ jobs:
               if a["logical_generator_attempts"]:
                   assert a["calls"][0] == b["calls"][0]
                   assert b["logical_generator_attempts"] in (1, 2)
+          assert 0 <= data["historical_baseline_diagnostic"]["exact_first_draft_matches"] <= 19
           print("Real shared-first-draft paired benchmark completed and audited.")
           PY
       - name: Upload original paired traces, tokens, errors and judgments
