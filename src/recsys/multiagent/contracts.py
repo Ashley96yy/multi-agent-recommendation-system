@@ -19,6 +19,10 @@ IssueCode = Literal[
     "invalid_citation",
     "required_attribute_uncited",
     "prohibited_claim_phrase",
+    "source_conflict",
+    "source_stale_metadata",
+    "source_claim_missing",
+    "superseded_evidence",
 ]
 
 
