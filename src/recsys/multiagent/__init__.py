@@ -7,8 +7,9 @@ from recsys.multiagent.agents import (
 )
 from recsys.multiagent.contracts import AgentAttempt, CriticIssue, CriticVerdict, MultiAgentResult
 from recsys.multiagent.orchestrator import MultiAgentOrchestrator
+from recsys.multiagent.source_guard import TypedSourceGuard
 
 __all__ = [
     "PreferenceRetrievalAgent", "RecommendationAgent", "CriticVerificationAgent",
-    "MultiAgentOrchestrator", "CriticIssue", "CriticVerdict", "AgentAttempt", "MultiAgentResult",
+    "MultiAgentOrchestrator", "TypedSourceGuard", "CriticIssue", "CriticVerdict", "AgentAttempt", "MultiAgentResult",
 ]
