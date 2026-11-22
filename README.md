@@ -31,7 +31,7 @@ and fixed scenarios using three controlled configurations:
 | Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
 | One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
 | Local Qwen model adapter | Smoke verified | Pinned public 0.5B model; 2 actual calls and 2/2 structural positives in a tiny synthetic run |
-| Frozen single-agent evaluation | Implemented | 15 ordinary + 10 red-team synthetic cases; separately recorded model measurements |
+| Frozen single-agent evaluation | Measured | 15 ordinary + 10 red-team synthetic cases; 2/19 strict positive successes; 13 schema failures |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
 | Multi-agent critic / revision | Not implemented | No quality improvement claim |
@@ -94,7 +94,8 @@ python -m recsys.evaluation.review_queue \
 ```
 
 See [the frozen evaluation protocol](docs/baseline_evaluation_protocol.md)
-for explicit scoring definitions and limitations.
+for scoring definitions and [the measured 25-case results](docs/single_agent_baseline_results_20261122.md)
+for actual model outcomes, failure patterns, latencies and limitations.
 
 ## Design priorities
 
@@ -116,6 +117,7 @@ for explicit scoring definitions and limitations.
 - [Real Qwen smoke protocol](docs/real_single_agent_qwen_smoke.md)
 - [Recorded real Qwen results](docs/real_single_agent_qwen_results_20261122.md)
 - [Single-agent 15+10 evaluation protocol](docs/baseline_evaluation_protocol.md)
+- [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
