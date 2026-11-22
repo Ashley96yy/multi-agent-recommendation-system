@@ -122,7 +122,48 @@ deliberately omits author labels and automated predictions so reviewers
 can evaluate evidence independently before unblinding. It has 26 rows.
 No independent person has yet submitted such reviews.
 
-## 4. Critical limitations and next phase
+## 4. Separate blind review of genuine prior Qwen outputs
+
+For a more realistic future semantic evaluation, the same CI run also
+retrieved the **immutable Stage 3.3 real Qwen CPU artifact** (run
+[45056291366](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45056291366),
+original artifact `14766939207`), verified its original archive
+SHA-256, and extracted the preserved raw model reasons from the
+`no_preflight__safe_json_normalization` arm.
+
+Measured **export-only** counts:
+
+- **9** previous Critic-approved cases were represented.
+- Those cases contained **15 distinct recommendation-reason rows**.
+- All rows include the original model reason, cited source IDs, supported
+  fields and source excerpts, with empty atomic-claim span, evidence
+  support verdict and reviewer metadata.
+- **0 real-model atomic claims have yet been segmented or reviewed.**
+  The CSV is a preparatory blind-review queue and cannot support a
+  substantive factual-grounding success claim.
+
+The original Qwen outputs were **not regenerated**, nor were historical
+model acceptance/success rates recalculated or improved. The exported
+review manifest records model-report SHA-256, original catalog SHA-256,
+fixed arm name, source run ID, and row count. Both the scored typed-claim
+report and the separate real-model review CSV are archived by the Stage
+3.4 Actions workflow.
+
+To regenerate the model queue from the original JSON artifact:
+
+```bash
+python -m recsys.evaluation.model_reason_review \
+  --real-report artifacts/evaluation/stage33-original.json \
+  --catalog data/retrieval_eval/catalog.json \
+  --output artifacts/evaluation/stage34-real-qwen-blind-review.csv \
+  --manifest artifacts/evaluation/stage34-real-qwen-review-manifest.json
+```
+
+The `stage33-original.json` input above must be the unmodified JSON
+recovered from the original real-Qwen artifact. No LLM weights are needed
+for this export.
+
+## 5. Critical limitations and next phase
 
 This stage **provides the evaluation foundation for semantic groundedness**,
 but it is **not yet a general semantic groundedness metric**. Four
