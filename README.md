@@ -189,17 +189,21 @@ detects contradictory active evidence, superseded citations, outdated
 product metadata and missing field declarations, and can prevent a Qwen
 call when required evidence cannot be trusted.
 
-A standalone pinned-Qwen CPU experiment compares the same frozen 25
-synthetic cases with a **2×2 first-pass policy matrix**: strict versus
-safe JSON normalization, and field preflight off versus on. Identical
-first prompts share actual generated model outputs to avoid
-double-counting physical calls. No revision loop is included in this
-factor-isolation experiment.
+A **completed real pinned-Qwen CPU experiment** compared the unchanged
+frozen 25 synthetic cases with a **2×2 first-pass policy matrix**:
+strict versus safe JSON normalization, and field preflight off versus on.
+The recorded positive successes were **0/19 (strict)** and **4/19
+(normalized)** under both preflight settings. Source preflight reduced
+the arm's logical generation calls **from 19 to 10** by rejecting nine
+cases with unavailable field evidence; it did **not** add successes.
+Identical first prompts shared actual model outputs: the full matrix
+made 19 **physical** Qwen calls, plus one new fictional-source smoke
+call. No revision loop was included.
 
 The guard only establishes consistency of typed source assertions and
 citation provenance, **not** whether arbitrary natural-language reasons
-are entailed by documents. See [the Stage 3.3 experiment protocol](
-docs/stage33_live_reliability_protocol.md).
+are entailed by documents. See [the Stage 3.3 experiment protocol](docs/stage33_live_reliability_protocol.md)
+and [measured real Qwen results](docs/stage33_real_qwen_results_20261122.md).
 
 ## Design priorities
 
@@ -229,6 +233,7 @@ docs/stage33_live_reliability_protocol.md).
 - [Stage 3.2 output/evidence protocol](docs/stage32_structured_output_and_evidence.md)
 - [Recorded Stage 3.2 replay and fictional source-audit results](docs/stage32_recorded_results_20261122.md)
 - [Stage 3.3 live reliability and conflict-aware source guard protocol](docs/stage33_live_reliability_protocol.md)
+- [Measured Stage 3.3 real Qwen reliability and source-guard results](docs/stage33_real_qwen_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
