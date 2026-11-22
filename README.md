@@ -31,6 +31,8 @@ and fixed scenarios using three controlled configurations:
 | Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
 | One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
 | Local Qwen model adapter | Smoke verified | Pinned public 0.5B model; 2 actual calls and 2/2 structural positives in a tiny synthetic run |
+| Frozen single-agent evaluation | Measured | 15 ordinary + 10 red-team synthetic cases; 2/19 strict positive successes; 13 schema failures |
+| Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
 | Multi-agent critic / revision | Not implemented | No quality improvement claim |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
@@ -72,6 +74,29 @@ This downloads public model weights. A separate GitHub Actions
 per-case outcomes, tokens, latency, pinned model versions, and failure reasons.
 Real model execution was independently checked in [the recorded Qwen CPU smoke](docs/real_single_agent_qwen_results_20261122.md); the unit tests alone would not establish that.
 
+## Evaluate the 15 + 10 single-agent baseline
+
+The fixed-case experiment separates expected-product retrieval, structurally
+accepted recommendations, hard no-match filtering, citation **field coverage**,
+red-team literal phrase leakage, model failures, latency and token usage.
+**Factual claim support is not automatically graded**; unresolved semantic
+groundedness remains `null` until independently reviewed.
+
+```bash
+python -m pip install -e ".[dev,semantic,local-llm]"
+python -m pytest
+python -m recsys.evaluation.run_baseline_eval \
+  --retrieval-backend minilm --top-k 3 \
+  --output artifacts/evaluation/single-agent-baseline-25.json
+python -m recsys.evaluation.review_queue \
+  --report artifacts/evaluation/single-agent-baseline-25.json \
+  --output artifacts/evaluation/manual-review-queue.csv
+```
+
+See [the frozen evaluation protocol](docs/baseline_evaluation_protocol.md)
+for scoring definitions and [the measured 25-case results](docs/single_agent_baseline_results_20261122.md)
+for actual model outcomes, failure patterns, latencies and limitations.
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -91,6 +116,8 @@ Real model execution was independently checked in [the recorded Qwen CPU smoke](
 - [Single-agent baseline](docs/single_agent_baseline.md)
 - [Real Qwen smoke protocol](docs/real_single_agent_qwen_smoke.md)
 - [Recorded real Qwen results](docs/real_single_agent_qwen_results_20261122.md)
+- [Single-agent 15+10 evaluation protocol](docs/baseline_evaluation_protocol.md)
+- [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
