@@ -45,11 +45,14 @@ class MultiAgentOrchestrator:
         attempts: list[AgentAttempt] = []
         feedback: CriticVerdict | None = None
         for revision in range(self.max_revisions + 1):
-            raw = self.recommendation_agent.propose(retrieval, feedback=feedback)
             try:
+                raw = self.recommendation_agent.propose(retrieval, feedback=feedback)
                 answer = SingleAgentAnswer.model_validate_json(raw)
                 parse_valid = True
-            except (ValidationError, ValueError):
+            except Exception:
+                # A generator/transport failure also counts as one attempted
+                # proposal; return no unverified result. Never retry beyond
+                # the explicitly configured single revision.
                 answer = None
                 parse_valid = False
 
