@@ -9,7 +9,7 @@ from time import perf_counter
 
 
 MODEL_ID = "Qwen/Qwen2.5-0.5B-Instruct"
-MODEL_REVISION = "367ae90eaf97b8d64787d6ee9101a04460b55392"
+MODEL_REVISION = "7ae557604adf67be50417f59c2c2f167def9a775"
 
 
 class LocalQwenGenerator:
