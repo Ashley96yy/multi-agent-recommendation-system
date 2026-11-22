@@ -84,6 +84,13 @@ For every model invocation we record:
 - Separate all-26, typed-22 and open-text-4 case denominators, confusion
   matrices and per-class F1.
 
+The Stage 3.6 prompts were designed **after inspecting Stage 3.5's
+failures on this same 26-case suite**, so any apparent gain is exploratory
+and must not be sold as a blind hold-out benchmark. The real experiment
+runs arms in fixed order for each claim; CPU latency comparisons may
+reflect ordering or caching effects and are descriptive rather than
+controlled throughput measurements.
+
 All scores are **author-label agreement on the tiny engineered fictional
 fixture**. The model never sees the author reference labels during
 inference, but this is **not independent human calibration** and not
