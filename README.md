@@ -31,7 +31,9 @@ and fixed scenarios using three controlled configurations:
 | Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
 | One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
 | Local Qwen model adapter | Smoke verified | Pinned public 0.5B model; 2 actual calls and 2/2 structural positives in a tiny synthetic run |
-| Frozen single-agent evaluation | Measured | 15 ordinary + 10 red-team synthetic cases; 2/19 strict positive successes; 13 schema failures |
+| Frozen single-agent evaluation | Measured | 15 normal + 10 adversarial synthetic cases; strict 2/19 positive successes, 13 format/schema failures |
+| Format-only replay ablation | Measured | Same frozen Qwen outputs: strict 2/19 vs normalized 12/19 positive successes; no new model calls |
+| Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
 | Multi-agent critic / revision | Not implemented | No quality improvement claim |
@@ -94,8 +96,10 @@ python -m recsys.evaluation.review_queue \
 ```
 
 See [the frozen evaluation protocol](docs/baseline_evaluation_protocol.md)
-for scoring definitions and [the measured 25-case results](docs/single_agent_baseline_results_20261122.md)
-for actual model outcomes, failure patterns, latencies and limitations.
+for scoring definitions, [the measured strict 25-case baseline](docs/single_agent_baseline_results_20261122.md),
+and [the format-only reliability ablation](docs/baseline_reliability_ablation_20261122.md).
+The measured normalization improves structural acceptance but **does not independently
+verify factual recommendation claims or establish production accuracy**.
 
 ## Design priorities
 
@@ -118,6 +122,7 @@ for actual model outcomes, failure patterns, latencies and limitations.
 - [Recorded real Qwen results](docs/real_single_agent_qwen_results_20261122.md)
 - [Single-agent 15+10 evaluation protocol](docs/baseline_evaluation_protocol.md)
 - [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
+- [Stage 2.3 format-only replay and synthetic evidence coverage results](docs/baseline_reliability_ablation_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
