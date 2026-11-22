@@ -54,7 +54,7 @@ class LocalQwenGenerator:
             model_id,
             revision=revision,
             trust_remote_code=False,
-            torch_dtype=torch.float32,
+            dtype=torch.float32,
         ).to(device)
         self._model.eval()
         self.call_count = 0
@@ -82,6 +82,7 @@ class LocalQwenGenerator:
         with self._torch.inference_mode():
             output = self._model.generate(
                 input_ids=inputs,
+                attention_mask=self._torch.ones_like(inputs),
                 max_new_tokens=self.max_new_tokens,
                 do_sample=False,
                 pad_token_id=self._tokenizer.eos_token_id,
