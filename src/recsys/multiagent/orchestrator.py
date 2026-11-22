@@ -27,7 +27,7 @@ class MultiAgentOrchestrator:
         *,
         max_revisions: int = 1,
     ):
-        if isinstance(max_revisions, bool) or max_revisions not in (0, 1):
+        if type(max_revisions) is not int or max_revisions not in (0, 1):
             raise ValueError("max_revisions must be 0 or 1")
         self.retrieval_agent = retrieval_agent
         self.recommendation_agent = recommendation_agent
