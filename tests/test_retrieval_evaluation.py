@@ -58,7 +58,7 @@ def test_suite_rejects_invalid_ground_truth_and_duplicate_case_ids():
     broken = suite.model_dump(mode="json")
     broken["cases"][0]["relevant_product_ids"] = ["NONEXISTENT"]
     with pytest.raises(ValueError, match="unknown product"):
-        evaluate_retriever(CatalogRetriever.from_json(CATALOG), type(suite).model_validate(broken))
+        evaluate_retriever(CatalogRetriever.from_json(CATALOG), type(suite).model_validate_json(json.dumps(broken)))
     broken = suite.model_dump(mode="json")
     broken["cases"][1]["case_id"] = broken["cases"][0]["case_id"]
     with pytest.raises(ValidationError, match="duplicate benchmark case"):
