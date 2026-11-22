@@ -58,6 +58,7 @@ class LocalQwenGenerator:
         ).to(device)
         self._model.eval()
         self.call_count = 0
+        self.last_response: str | None = None
         self.last_prompt_tokens = 0
         self.last_generated_tokens = 0
         self.last_generation_seconds = 0.0
@@ -76,6 +77,7 @@ class LocalQwenGenerator:
         if self.last_prompt_tokens > self.max_prompt_tokens:
             raise ValueError("prompt exceeded configured token budget")
         self.call_count += 1
+        self.last_response = None
         start = perf_counter()
         with self._torch.inference_mode():
             output = self._model.generate(
@@ -88,4 +90,5 @@ class LocalQwenGenerator:
         self.last_generation_seconds = perf_counter() - start
         tokens = output[0, inputs.shape[-1]:]
         self.last_generated_tokens = int(tokens.shape[-1])
-        return self._tokenizer.decode(tokens, skip_special_tokens=True).strip()
+        self.last_response = self._tokenizer.decode(tokens, skip_special_tokens=True).strip()
+        return self.last_response
