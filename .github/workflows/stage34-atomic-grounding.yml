@@ -10,11 +10,14 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   atomic-claims-and-blind-review:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,6 +36,18 @@ jobs:
             --labels data/atomic_claim_eval/author_labels.json \
             --output artifacts/evaluation/stage34-atomic-claims.json \
             --blind-review-csv artifacts/evaluation/stage34-blind-review.csv
+      - name: Recover the authentic Stage 3.3 Qwen artifact without inference
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14766939207/zip" > artifacts/evaluation/stage33-original.zip
+          echo "7deeceed4226657e90854974dac9c3308251bebf6fb66f148a40bbe8344fa0fc  artifacts/evaluation/stage33-original.zip" | sha256sum --check
+          unzip -p artifacts/evaluation/stage33-original.zip stage33-real-qwen-matrix.json > artifacts/evaluation/stage33-original.json
+      - name: Export original real Qwen reasons for human atomic claim annotation
+        run: |
+          python -m recsys.evaluation.model_reason_review \
+            --real-report artifacts/evaluation/stage33-original.json \
+            --catalog data/retrieval_eval/catalog.json \
+            --output artifacts/evaluation/stage34-real-qwen-blind-review.csv \
+            --manifest artifacts/evaluation/stage34-real-qwen-review-manifest.json
       - name: Verify separation of labels, typed review and open-text abstention
         run: |
           python - <<'PY'
@@ -57,7 +72,18 @@ jobs:
           assert len(rows) == 26
           assert all("author_label" not in row and "prediction" not in row for row in rows)
           assert all(row["reviewer_label"] == "" for row in rows)
-          print("Fixed authored-claim fixture and blind review artifacts validated.")
+          model = json.loads((root / "stage34-real-qwen-review-manifest.json").read_text())
+          assert model["source_run_id"] == 45056291366
+          assert model["approved_case_count"] == 9
+          assert model["recommendation_reason_rows"] >= 9
+          assert model["atomic_claims_manually_extracted"] == 0
+          assert model["semantic_groundedness"] is None
+          with (root / "stage34-real-qwen-blind-review.csv").open(newline="", encoding="utf-8") as f:
+              model_rows = list(csv.DictReader(f))
+          assert len(model_rows) == model["recommendation_reason_rows"]
+          assert all(row["reviewer_label"] == "" and row["atomic_claim_span"] == ""
+                     for row in model_rows)
+          print("Fixed authored-claim fixture and real Qwen blind review artifacts validated.")
           PY
       - name: Preserve full predictions, labels, evidence and blind human-review export
         if: always()
@@ -67,4 +93,6 @@ jobs:
           path: |
             artifacts/evaluation/stage34-atomic-claims.json
             artifacts/evaluation/stage34-blind-review.csv
+            artifacts/evaluation/stage34-real-qwen-blind-review.csv
+            artifacts/evaluation/stage34-real-qwen-review-manifest.json
           if-no-files-found: warn
