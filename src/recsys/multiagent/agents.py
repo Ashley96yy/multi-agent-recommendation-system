@@ -10,6 +10,8 @@ import json
 import re
 from typing import Protocol
 
+from recsys.multiagent.source_guard import TypedSourceGuard
+
 from pydantic import ValidationError
 
 from recsys.baseline.contracts import SingleAgentAnswer
@@ -76,8 +78,10 @@ class CriticVerificationAgent:
         "fda approved",
     )
 
-    def __init__(self, *, require_attribute_citations: bool = True):
+    def __init__(self, *, require_attribute_citations: bool = True,
+                 source_guard: TypedSourceGuard | None = None):
         self.require_attribute_citations = require_attribute_citations
+        self.source_guard = source_guard
 
     def review(
         self,
@@ -93,6 +97,8 @@ class CriticVerificationAgent:
                 CriticIssue(code="invalid_generation", detail="Response failed the strict JSON response schema")
             ])
 
+        if self.source_guard is not None:
+            self.source_guard.bind(retrieval.catalog_sha256)
         by_id = {candidate.product.product_id: candidate for candidate in retrieval.candidates}
         for recommendation in answer.recommendations:
             product_id = recommendation.product_id
@@ -131,6 +137,17 @@ class CriticVerificationAgent:
                             code="required_attribute_uncited", product_id=product_id,
                             detail=f"Missing field citation for required attribute: {attribute}",
                         ))
+
+            if self.source_guard is not None:
+                for finding in self.source_guard.evaluate(
+                    product_id=product_id,
+                    required_attributes=preferences.required_attributes,
+                    evidence_ids=cited,
+                ):
+                    issues.append(CriticIssue(
+                        code=finding.code, product_id=product_id,
+                        detail=f"{finding.field}: {finding.detail}",
+                    ))
 
             normalized = re.sub(r"\s+", " ", recommendation.reason.casefold())
             for phrase in self.PROHIBITED_PHRASES:
