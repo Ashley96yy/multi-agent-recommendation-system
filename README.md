@@ -4,10 +4,12 @@ Independent **Applied AI / AI Engineering** portfolio project focused on reliabl
 source-grounded product recommendation and a controlled comparison of
 **Single-Agent RAG** against a **three-agent verification workflow**.
 
-> **Current state:** Retrieval and one-pass Single-Agent RAG are implemented.
-> The three-agent workflow, critic, revision loop, and controlled multi-agent
-> comparison are **planned**, not yet implemented. Real Qwen + MiniLM end-to-end inference **has passed** a separately recorded
-> four-case **synthetic smoke**, not a real-world quality benchmark.
+> **Current state:** Retrieval and real Qwen one-pass Single-Agent RAG are
+> implemented. Stage 3.0 adds tested **three-role interfaces**, a deterministic
+> structural/policy Critic, and an Orchestrator with **at most one revision**.
+> **Live multi-agent Qwen inference, independent semantic claim verification,
+> and a controlled multi-agent comparison have NOT yet been performed.**
+> Prior Qwen + MiniLM results are synthetic baseline experiments only.
 
 ## Research question
 
@@ -17,9 +19,9 @@ constraint satisfaction enough to justify its additional latency and tokens?**
 The project will eventually compare the same pinned model, retrieval evidence,
 and fixed scenarios using three controlled configurations:
 
-1. Single-Agent RAG (implemented as a structural baseline).
-2. Multi-Agent without revision (planned).
-3. Multi-Agent with one bounded revision (planned).
+1. Single-Agent RAG (measured on frozen 15+10 synthetic cases).
+2. Multi-Agent without revision (controller and role contracts tested; live experiment pending).
+3. Multi-Agent with one bounded revision (controller and role contracts tested; live experiment pending).
 
 ## Implemented components
 
@@ -36,7 +38,7 @@ and fixed scenarios using three controlled configurations:
 | Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
-| Multi-agent critic / revision | Not implemented | No quality improvement claim |
+| Three-role orchestration and critic / revision | Structural foundation implemented | Deterministic role interfaces, issue-based Critic, 0/1 revision budget; no real multi-agent LLM evaluation |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
 
 ## Reproduce lightweight tests
@@ -101,6 +103,23 @@ and [the format-only reliability ablation](docs/baseline_reliability_ablation_20
 The measured normalization improves structural acceptance but **does not independently
 verify factual recommendation claims or establish production accuracy**.
 
+## Bounded Multi-Agent Foundation (Stage 3.0)
+
+The new `recsys.multiagent` module provides:
+- `PreferenceRetrievalAgent` — validated preferences and metadata-safe retrieval.
+- `RecommendationAgent` — one candidate generation per attempt using the
+  original Single-Agent baseline context; structured critic feedback only on revision.
+- `CriticVerificationAgent` — deterministic hard constraints, citation
+  membership, required-attribute field references and selected forbidden-phrase
+  checks. **Not** an independent language-model fact checker.
+- `MultiAgentOrchestrator(max_revisions=0|1)` — no candidate → no calls,
+  otherwise one draft and at most one further attempt; rejected proposals
+  never become user-visible final answers.
+
+Offline orchestration tests use fixed JSON generators, **not Qwen**.
+The benchmark, original baseline scores and catalog remain untouched.
+Read [the architecture and limitations](docs/multiagent_architecture.md).
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -123,6 +142,7 @@ verify factual recommendation claims or establish production accuracy**.
 - [Single-agent 15+10 evaluation protocol](docs/baseline_evaluation_protocol.md)
 - [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
 - [Stage 2.3 format-only replay and synthetic evidence coverage results](docs/baseline_reliability_ablation_20261122.md)
+- [Stage 3.0 bounded three-role architecture](docs/multiagent_architecture.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
