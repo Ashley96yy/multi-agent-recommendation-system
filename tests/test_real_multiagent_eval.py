@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+import numpy as np
 
 from recsys.evaluation.baseline_suite import load_baseline_suite
 from recsys.evaluation.run_multiagent_eval import (
@@ -57,8 +58,17 @@ class FakeQwen:
         })
 
 
+class UniformPositiveEmbedder:
+    name = 'test-only-uniform-positive-vectors'
+
+    def embed(self, texts):
+        # Force every metadata-eligible candidate to be scored > 0,
+        # so these tests measure orchestration, not lexical retrieval recall.
+        return np.ones((len(texts), 4), dtype=np.float32)
+
+
 def setup():
-    retriever = CatalogRetriever.from_json(CATALOG)
+    retriever = CatalogRetriever.from_json(CATALOG, embedder=UniformPositiveEmbedder())
     cases, hashes = load_baseline_suite(SUITE, repo_root=ROOT, retriever=retriever)
     return retriever, cases, hashes
 
