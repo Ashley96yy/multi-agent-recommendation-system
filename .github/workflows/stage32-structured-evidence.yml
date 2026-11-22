@@ -1,0 +1,82 @@
+name: Stage 3.2 Structured Output and Source Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/structured-output-evidence-preflight
+    paths:
+      - '.github/workflows/stage32-structured-evidence.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  offline-real-output-replay-and-source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install offline project and test dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run all unit tests
+        run: python -m pytest
+      - name: Audit newly authored fictional source evidence and revisions
+        run: |
+          python -m recsys.evaluation.source_audit \
+            --catalog data/source_evidence_demo/catalog.json \
+            --sources data/source_evidence_demo/source_documents.json \
+            --output artifacts/evaluation/stage32-source-audit.json
+      - name: Download exact recorded Stage 3.1 real Qwen outputs
+        run: |
+          mkdir -p artifacts/evaluation
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14766901381/zip" > artifacts/evaluation/stage31-real-qwen-original.zip
+          sha256sum artifacts/evaluation/stage31-real-qwen-original.zip > artifacts/evaluation/stage31-zip-sha256.txt
+          unzip -p artifacts/evaluation/stage31-real-qwen-original.zip multiagent-qwen-paired-25.json > artifacts/evaluation/stage31-real-qwen-original.json
+      - name: Replay frozen first drafts under strict vs safe format policies
+        run: |
+          python -m recsys.evaluation.replay_stage32 \
+            --original-report artifacts/evaluation/stage31-real-qwen-original.json \
+            --catalog data/retrieval_eval/catalog.json \
+            --suite data/baseline_eval/suite.json \
+            --output artifacts/evaluation/stage32-first-draft-replay.json
+      - name: Assert source-audit and replay integrity, not model quality
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/evaluation")
+          replay = json.loads((p / "stage32-first-draft-replay.json").read_text())
+          audit = json.loads((p / "stage32-source-audit.json").read_text())
+          assert replay["source_run_id"] == 45053525292
+          assert replay["recorded_first_draft_count"] == 19
+          assert replay["additional_model_invocations"] == 0
+          assert replay["strategies"]["strict"]["accepted_generation_count"] == 3
+          assert replay["strategies"]["strict"]["positive_success_count"] == 0
+          assert replay["semantic_citation_groundedness"] is None
+          assert audit["source_document_count"] == 7
+          assert audit["source_claim_count"] == 12
+          assert audit["field_status_counts"]["conflict"] >= 1
+          assert audit["field_status_counts"]["stale_metadata_after_revision"] >= 1
+          assert audit["field_status_counts"]["missing"] >= 1
+          assert audit["real_product_verification"] is False
+          print("All source/replay checks passed, no new model inferences.")
+          PY
+      - name: Upload immutable replay results and synthetic source audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage32-json-and-evidence-audit
+          path: |
+            artifacts/evaluation/stage32-first-draft-replay.json
+            artifacts/evaluation/stage32-source-audit.json
+            artifacts/evaluation/stage31-zip-sha256.txt
+          if-no-files-found: warn
