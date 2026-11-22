@@ -1,0 +1,96 @@
+name: Stage 4.0 Interactive Demo E2E and Real Qwen Smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/stage40-interactive-agent-demo
+    paths:
+      - '.github/workflows/stage40-interactive-demo.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  local-ui-and-three-agent-e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install pinned CPU-only PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install optional Gradio UI and local Qwen adapters
+        run: python -m pip install -e ".[dev,local-llm,demo]"
+      - name: Run full offline suite including optional Gradio build test
+        run: python -m pytest
+      - name: Construct actual Gradio Blocks app without opening public service
+        run: |
+          python - <<'PY'
+          import gradio as gr
+          from recsys.demo.app import build_app
+          app=build_app()
+          assert isinstance(app, gr.Blocks)
+          conf=app.get_config_file()
+          assert len(conf["components"]) >= 12
+          assert len(conf["dependencies"]) >= 2
+          print(f"Constructed Gradio UI with {len(conf['components'])} components and {len(conf['dependencies'])} bound callbacks.")
+          PY
+      - name: Run 6 actual scripted controller scenarios and one real Qwen inference
+        run: |
+          python -m recsys.demo.checks \
+            --real-qwen-smoke \
+            --output artifacts/evaluation/stage40-demo-e2e.json
+      - name: Verify provenance, real Qwen call count and fail-closed outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("artifacts/evaluation/stage40-demo-e2e.json")
+          report=json.loads(p.read_text())
+          assert report["scripted_scenarios_passed"]==6
+          assert report["scripted_mode_not_real_llm"] is True
+          assert len(report["walkthroughs_sha256"])==64
+          assert len(report["source_catalog_sha256"])==64
+          assert len(report["source_documents_sha256"])==64
+          scripted={x["scenario_id"]:x for x in report["scripted_scenarios"]}
+          assert scripted["consistent"]["status"]=="approved"
+          assert scripted["revision"]["status"]=="approved"
+          assert scripted["revision"]["revision_used"]
+          assert "prohibited_claim_phrase" in scripted["revision"]["critic_issue_codes"]
+          for key in ("conflicting","superseded","missing"):
+              assert scripted[key]["status"]=="insufficient_evidence"
+              assert scripted[key]["generator_calls"]==0
+              assert scripted[key]["final_recommendations"]==[]
+          assert scripted["hard_filter"]["status"]=="no_candidates"
+          assert scripted["hard_filter"]["generator_calls"]==0
+          live=report["real_qwen_smoke"]
+          assert live["mode"]=="live_qwen"
+          assert live["logical_generator_attempts"]==1
+          assert live["actual_backend_calls"]==1
+          assert len(live["attempts"])==1
+          assert live["attempts"][0]["raw_unverified_output"] is not None
+          assert live["generated_completion_tokens"] is not None
+          assert live["generated_completion_tokens"]>0
+          assert live["status"] in ("approved","abstained","rejected")
+          assert live["independent_semantic_groundedness"] is None
+          if live["status"]!="approved":
+              assert live["final_approved_recommendations_only"]==[]
+          print("Fixed scripted controls, true one-call Qwen and no-unverified-final-result verified.")
+          PY
+      - name: Preserve full source-aware trace and unmodified real-model output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage40-interactive-demo-e2e-traces
+          path: artifacts/evaluation/stage40-demo-e2e.json
+          if-no-files-found: warn
