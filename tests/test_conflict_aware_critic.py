@@ -129,6 +129,15 @@ def test_claim_level_verifier_checks_explicit_typed_claim_and_active_source():
         asserted_value="21.00", evidence_ids={"E-SOURCE-003"},
     )
     assert not index.verify_typed_claim(
+        product_id="SYN-E01", field="attributes.fragrance_free",
+        asserted_value=True, evidence_ids={"E-SOURCE-001", "E-SOURCE-008"},
+    )  # Cross-product / superseded citation cannot be laundered.
+    assert not index.verify_typed_claim(
+        product_id="SYN-E01", field="attributes.fragrance_free",
+        asserted_value=True, evidence_ids={"E-SOURCE-001", "E-NOT-REAL"},
+    )
+
+    assert not index.verify_typed_claim(
         product_id="SYN-E01", field="price_usd",
         asserted_value="29.00", evidence_ids={"E-SOURCE-003"},
     )
