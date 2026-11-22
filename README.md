@@ -4,12 +4,13 @@ Independent **Applied AI / AI Engineering** portfolio project focused on reliabl
 source-grounded product recommendation and a controlled comparison of
 **Single-Agent RAG** against a **three-agent verification workflow**.
 
-> **Current state:** Retrieval and real Qwen one-pass Single-Agent RAG are
-> implemented. Stage 3.0 adds tested **three-role interfaces**, a deterministic
-> structural/policy Critic, and an Orchestrator with **at most one revision**.
-> **Live multi-agent Qwen inference, independent semantic claim verification,
-> and a controlled multi-agent comparison have NOT yet been performed.**
-> Prior Qwen + MiniLM results are synthetic baseline experiments only.
+> **Current state:** Retrieval and a real Qwen Single-Agent baseline are
+> implemented. Stage 3.1 has now **measured** a genuine Qwen-backed
+> three-role workflow with a **deterministic** Critic and at most one
+> revision on 15 normal + 10 red-team **synthetic** requests.
+> **No positive quality gain was observed from the revision**. This
+> is NOT three LLM agents or independent semantic fact verification.
+> All actual metrics and limitations are recorded in the experiment report.
 
 ## Research question
 
@@ -20,8 +21,8 @@ The project will eventually compare the same pinned model, retrieval evidence,
 and fixed scenarios using three controlled configurations:
 
 1. Single-Agent RAG (measured on frozen 15+10 synthetic cases).
-2. Multi-Agent without revision (controller and role contracts tested; live experiment pending).
-3. Multi-Agent with one bounded revision (controller and role contracts tested; live experiment pending).
+2. Multi-role workflow with Critic, no revision (real-Qwen paired experiment measured).
+3. Same workflow with one bounded revision (real-Qwen paired experiment measured).
 
 ## Implemented components
 
@@ -38,7 +39,7 @@ and fixed scenarios using three controlled configurations:
 | Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
-| Three-role orchestration and critic / revision | Structural foundation implemented | Deterministic role interfaces, issue-based Critic, 0/1 revision budget; no real multi-agent LLM evaluation |
+| Three-role orchestration and critic / revision | Real Qwen integration measured | Shared first draft, 19 initial Qwen calls + 16 real revisions; neither arm achieved a strict positive success on 19 synthetic positives |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
 
 ## Reproduce lightweight tests
@@ -116,9 +117,27 @@ The new `recsys.multiagent` module provides:
   otherwise one draft and at most one further attempt; rejected proposals
   never become user-visible final answers.
 
-Offline orchestration tests use fixed JSON generators, **not Qwen**.
-The benchmark, original baseline scores and catalog remain untouched.
-Read [the architecture and limitations](docs/multiagent_architecture.md).
+Unit tests use fixed JSON generators; the separate Stage 3.1 GitHub Actions
+workflow ran **real pinned Qwen** on the original frozen corpus.
+The paired study shared each first draft across the two arms, and a
+single revision was **not** beneficial under this model, schema and
+evidence configuration: 0/19 positive strict successes for both arms,
+3/19 structurally approved proposals each, and 16 extra Qwen calls with
+one revision. Missing attribute-field evidence and invalid model JSON
+were the main blocks. No real semantic claim-entailment metric was computed.
+Read the [architecture](docs/multiagent_architecture.md), the
+[paired experiment protocol](docs/real_multiagent_qwen_protocol.md), and
+the [actual measured results](docs/real_multiagent_qwen_results_20261122.md).
+
+To reproduce the real CPU evaluation:
+
+```bash
+python -m pip install -e ".[dev,semantic,local-llm]"
+python -m recsys.evaluation.run_multiagent_eval \
+  --catalog data/retrieval_eval/catalog.json \
+  --suite data/baseline_eval/suite.json \
+  --output artifacts/evaluation/multiagent-qwen-paired-25.json
+```
 
 ## Design priorities
 
@@ -143,6 +162,8 @@ Read [the architecture and limitations](docs/multiagent_architecture.md).
 - [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
 - [Stage 2.3 format-only replay and synthetic evidence coverage results](docs/baseline_reliability_ablation_20261122.md)
 - [Stage 3.0 bounded three-role architecture](docs/multiagent_architecture.md)
+- [Real paired Qwen Multi-Agent experiment protocol](docs/real_multiagent_qwen_protocol.md)
+- [Measured Stage 3.1 real Qwen paired results](docs/real_multiagent_qwen_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
