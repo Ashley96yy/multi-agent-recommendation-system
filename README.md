@@ -39,7 +39,8 @@ and fixed scenarios using three controlled configurations:
 | Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Typed atomic claim evaluation | Measured on fictional authored labels | 26 cases: 22 typed supported/contradicted/unsupported/ambiguous, 4 open-text human-review abstentions; 22/22 typed fixture agreement, not real semantic accuracy |
-| Open-text entailment and independent review | Not yet measured | Author reference labels available; blind 26-row review queue exported; free-text claims never auto-graded |
+| Model-based atomic claim Critic (Stage 3.5) | Real pinned-Qwen evaluation on 26 fictional claims | Reads primary source texts, supersession history and citations; strict four-label JSON output, raw generation/tokens/latency; no claim extraction from recommendation paragraphs |
+| Independent human calibration | Review workflow prepared, no actual reviews yet | Separate blank Reviewer A/B packets, source hashes, signed label validation, Cohen's kappa and consent-independent review process; no human-calibrated score claimed |
 | Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
 | Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
 | Stage 3.3 runtime source guard | Implemented and unit-tested | Opt-in active-source conflict, supersession, missing claim, stale metadata and explicit typed claim checks; not a language entailment model |
@@ -239,6 +240,34 @@ python -m recsys.evaluation.atomic_claims \
   --blind-review-csv artifacts/evaluation/stage34-blind-review.csv
 ```
 
+## Stage 3.5 — Separate model-based claim Critic
+
+A real pinned local **Qwen2.5-0.5B-Instruct** is asked to classify the
+**26 fixed synthetic atomic claims**, using complete fictional primary
+source passages and citation metadata. The labels are Supported,
+Contradicted, Unsupported and Ambiguous; invalid model answers are
+recorded as requiring review rather than silently being fixed.
+Author-written gold labels are used **only after inference**. This
+model is **not** yet integrated as an automatic semantic gate for all
+recommendation prose, and claim segmentation is not automatic.
+
+Two blank, independent human-review packets are also produced. The
+reviewing workflow checks completeness, source hashes, separate
+reviewer IDs and inter-reviewer agreement, but **no human ratings
+have been received**. Human-calibrated accuracy and actual real-Qwen
+recommendation groundedness therefore remain **unmeasured**.
+
+See the [Stage 3.5 protocol](docs/stage35_model_critic_protocol.md).
+
+```bash
+python -m pip install -e ".[dev,local-llm]"
+python -m pytest
+python -m recsys.evaluation.run_model_critic \
+  --output artifacts/evaluation/stage35-real-qwen-critic.json
+python -m recsys.evaluation.human_calibration \
+  --packet-dir artifacts/evaluation/stage35-blind-review
+```
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -269,6 +298,7 @@ python -m recsys.evaluation.atomic_claims \
 - [Stage 3.3 live reliability and conflict-aware source guard protocol](docs/stage33_live_reliability_protocol.md)
 - [Measured Stage 3.3 real Qwen reliability and source-guard results](docs/stage33_real_qwen_results_20261122.md)
 - [Stage 3.4 authored atomic-claim audit and blind human-review protocol](docs/stage34_atomic_claim_grounding_20261122.md)
+- [Stage 3.5 real Qwen atomic Critic and independent human-review protocol](docs/stage35_model_critic_protocol.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
