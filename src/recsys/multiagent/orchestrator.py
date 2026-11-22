@@ -49,11 +49,17 @@ class MultiAgentOrchestrator:
                 generator_calls=0, note=retrieval.no_match_reason,
             )
 
+        guard = self.critic_agent.source_guard
+        if guard is not None:
+            guard.bind(retrieval.catalog_sha256)
         if self.evidence_preflight and preferences.required_attributes:
             needed = {f"attributes.{name}" for name in preferences.required_attributes}
             supported = [
                 c for c in retrieval.candidates
                 if needed <= {e.supported_field for e in c.evidence}
+                and (guard is None or guard.eligible_for_required_fields(
+                    c.product.product_id, preferences.required_attributes
+                ))
             ]
             if not supported:
                 return MultiAgentResult(
