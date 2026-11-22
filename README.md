@@ -6,9 +6,8 @@ source-grounded product recommendation and a controlled comparison of
 
 > **Current state:** Retrieval and one-pass Single-Agent RAG are implemented.
 > The three-agent workflow, critic, revision loop, and controlled multi-agent
-> comparison are **planned**, not yet implemented. Real Qwen inference has an
-> opt-in dedicated CI experiment; consult its recorded run before claiming
-> model success.
+> comparison are **planned**, not yet implemented. Real Qwen + MiniLM end-to-end inference **has passed** a separately recorded
+> four-case **synthetic smoke**, not a real-world quality benchmark.
 
 ## Research question
 
@@ -31,7 +30,7 @@ and fixed scenarios using three controlled configurations:
 | Vector retrieval | Complete | Offline lexical baseline + optional pinned MiniLM |
 | Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
 | One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
-| Local Qwen model adapter | Experimental | Pinned public 0.5B model, CPU runner, real-run artifact required |
+| Local Qwen model adapter | Smoke verified | Pinned public 0.5B model; 2 actual calls and 2/2 structural positives in a tiny synthetic run |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
 | Multi-agent critic / revision | Not implemented | No quality improvement claim |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
@@ -71,7 +70,7 @@ python -m recsys.evaluation.run_single_agent \
 This downloads public model weights. A separate GitHub Actions
 `Qwen Single-Agent Smoke` workflow runs the same code on CPU, and captures
 per-case outcomes, tokens, latency, pinned model versions, and failure reasons.
-Do not interpret successful unit tests as evidence of real LLM execution.
+Real model execution was independently checked in [the recorded Qwen CPU smoke](docs/real_single_agent_qwen_results_20261122.md); the unit tests alone would not establish that.
 
 ## Design priorities
 
@@ -91,6 +90,7 @@ Do not interpret successful unit tests as evidence of real LLM execution.
 - [Recorded MiniLM results](docs/retrieval_results_20261122.md)
 - [Single-agent baseline](docs/single_agent_baseline.md)
 - [Real Qwen smoke protocol](docs/real_single_agent_qwen_smoke.md)
+- [Recorded real Qwen results](docs/real_single_agent_qwen_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
