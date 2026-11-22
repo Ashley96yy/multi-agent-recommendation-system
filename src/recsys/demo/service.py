@@ -378,7 +378,7 @@ def render_markdown(report: dict) -> str:
         lines += [
             f"**{escape(rec['title'])}** ({escape(rec['product_id'])})",
             f"Price (fictional): ${escape(rec['price_usd'] or 'unknown')}",
-            f"Reason (model/script text, *not semantically verified*): "
+            f"Reason (**unverified model/script wording**; citation IDs checked, not semantic entailment): "
             f"{escape(rec['reason_unverified_natural_language'])}",
             f"Linked evidence IDs: {', '.join(escape(e['evidence_id']) for e in rec['cited_evidence'])}",
         ]
