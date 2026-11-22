@@ -48,6 +48,7 @@ class AgentAttempt(Contract):
     verdict: CriticVerdict
     proposed_product_ids: list[str] = Field(default_factory=list)
     generator_calls: int = Field(ge=1, le=1)
+    format_actions: list[Literal["strip_whole_json_fence", "set_missing_no_suitable_match_false"]] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_attempt_index(self) -> "AgentAttempt":
@@ -57,7 +58,7 @@ class AgentAttempt(Contract):
 
 
 class MultiAgentResult(Contract):
-    status: Literal["approved", "abstained", "rejected", "no_candidates"]
+    status: Literal["approved", "abstained", "rejected", "no_candidates", "insufficient_evidence"]
     retrieval: RetrievalResult
     answer: SingleAgentAnswer | None
     attempts: list[AgentAttempt] = Field(default_factory=list)
@@ -82,6 +83,8 @@ class MultiAgentResult(Contract):
             raise ValueError("rejected/no-candidates results cannot expose unapproved proposals")
         if self.status == "no_candidates" and (self.retrieval.candidates or self.attempts):
             raise ValueError("no-candidates path must bypass generation")
+        if self.status == "insufficient_evidence" and (not self.retrieval.candidates or self.attempts or self.generator_calls):
+            raise ValueError("insufficient-evidence path requires retrieved candidates and zero generator calls")
         if self.status == "rejected" and not self.attempts:
             raise ValueError("rejected path requires at least one attempted generation")
         return self

@@ -39,6 +39,9 @@ and fixed scenarios using three controlled configurations:
 | Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
+| Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
+| Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
+| Recorded Stage 3.2 output replay | Measured offline | Original 19 real Qwen first drafts: strict 3 approved / 0 label successes; normalized 9 approved / 4 label successes; zero new Qwen calls |
 | Three-role orchestration and critic / revision | Real Qwen integration measured | Shared first draft, 19 initial Qwen calls + 16 real revisions; neither arm achieved a strict positive success on 19 synthetic positives |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
 
@@ -139,6 +142,43 @@ python -m recsys.evaluation.run_multiagent_eval \
   --output artifacts/evaluation/multiagent-qwen-paired-25.json
 ```
 
+## Stage 3.2 — Separate output reliability and source evidence
+
+Two **opt-in** orchestrator policies preserve the historical strict model
+runs unchanged:
+
+- `format_policy="safe_json_normalization"` only removes whole-response
+  Markdown JSON fences or adds an unambiguous missing boolean. It never
+  edits product IDs, citations, written product reasons, or constraints.
+- `evidence_preflight=True` filters candidates without the required
+  attribute-field citations; when no retrieved candidate has the needed
+  source records it exits with `insufficient_evidence` and zero model calls.
+
+The independently authored **fictional** source-document fixture and
+deterministic audit separately recognize contradictory active passages,
+superseded source declarations, stale product metadata and missing
+field support. It does not verify actual brands or natural-language
+entailment.
+
+A fresh **offline replay of the frozen 19 actual Qwen first drafts** measured
+3 vs 9 Critic approvals and 0 vs 4 strict positive label successes (original
+strict JSON vs safe normalization). Nine earlier requests potentially lacked
+the source fields required by preflight. These are **post-hoc and
+hypothetical**, respectively; no new Qwen calls or real savings were measured.
+See [protocol](docs/stage32_structured_output_and_evidence.md) and
+[recorded results](docs/stage32_recorded_results_20261122.md).
+
+Reproduce the source audit (no model weights):
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+python -m recsys.evaluation.source_audit \
+  --catalog data/source_evidence_demo/catalog.json \
+  --sources data/source_evidence_demo/source_documents.json \
+  --output artifacts/evaluation/stage32-source-audit.json
+```
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -164,6 +204,8 @@ python -m recsys.evaluation.run_multiagent_eval \
 - [Stage 3.0 bounded three-role architecture](docs/multiagent_architecture.md)
 - [Real paired Qwen Multi-Agent experiment protocol](docs/real_multiagent_qwen_protocol.md)
 - [Measured Stage 3.1 real Qwen paired results](docs/real_multiagent_qwen_results_20261122.md)
+- [Stage 3.2 output/evidence protocol](docs/stage32_structured_output_and_evidence.md)
+- [Recorded Stage 3.2 replay and fictional source-audit results](docs/stage32_recorded_results_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance

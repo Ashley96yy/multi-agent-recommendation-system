@@ -1,0 +1,136 @@
+{
+  "fixture_id": "fictional-multi-source-evidence-v1",
+  "provenance": "All passages manually authored as fictional source documents for testing. No real vendor, real ingredient or independently verified product claim.",
+  "documents": [
+    {
+      "source_id": "DOC-E01-SPEC",
+      "product_id": "SYN-E01",
+      "source_type": "fictional_product_spec",
+      "effective_date": "2026-04-01",
+      "supersedes": null,
+      "text": "Cloud Calm Facial Cream is made without added fragrance. The formula is labelled suitable for sensitive skin. The fictional list price is USD 21.00.",
+      "claims": [
+        {
+          "supported_field": "attributes.fragrance_free",
+          "asserted_value": true,
+          "excerpt": "Cloud Calm Facial Cream is made without added fragrance."
+        },
+        {
+          "supported_field": "attributes.sensitive_skin",
+          "asserted_value": true,
+          "excerpt": "The formula is labelled suitable for sensitive skin."
+        },
+        {
+          "supported_field": "price_usd",
+          "asserted_value": "21.00",
+          "excerpt": "The fictional list price is USD 21.00."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E02-SPEC",
+      "product_id": "SYN-E02",
+      "source_type": "fictional_product_spec",
+      "effective_date": "2026-04-01",
+      "supersedes": null,
+      "text": "Dusk Barrier Balm is marketed as fragrance-free. The balm is described as supporting the skin barrier. The fictional list price is USD 24.00.",
+      "claims": [
+        {
+          "supported_field": "attributes.fragrance_free",
+          "asserted_value": true,
+          "excerpt": "Dusk Barrier Balm is marketed as fragrance-free."
+        },
+        {
+          "supported_field": "attributes.barrier_support",
+          "asserted_value": true,
+          "excerpt": "The balm is described as supporting the skin barrier."
+        },
+        {
+          "supported_field": "price_usd",
+          "asserted_value": "24.00",
+          "excerpt": "The fictional list price is USD 24.00."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E02-QC",
+      "product_id": "SYN-E02",
+      "source_type": "fictional_batch_qc",
+      "effective_date": "2026-04-10",
+      "supersedes": null,
+      "text": "A fictional quality-control record for Dusk Barrier Balm batch B reports added fragrance in the mixture.",
+      "claims": [
+        {
+          "supported_field": "attributes.fragrance_free",
+          "asserted_value": false,
+          "excerpt": "A fictional quality-control record for Dusk Barrier Balm batch B reports added fragrance in the mixture."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E03-SPEC-V1",
+      "product_id": "SYN-E03",
+      "source_type": "fictional_product_spec",
+      "effective_date": "2026-01-10",
+      "supersedes": null,
+      "text": "The original Daylight Sun Cream document describes a mineral UV filter. The fictional list price is USD 19.00.",
+      "claims": [
+        {
+          "supported_field": "attributes.mineral",
+          "asserted_value": true,
+          "excerpt": "The original Daylight Sun Cream document describes a mineral UV filter."
+        },
+        {
+          "supported_field": "price_usd",
+          "asserted_value": "19.00",
+          "excerpt": "The fictional list price is USD 19.00."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E03-SPEC-V2",
+      "product_id": "SYN-E03",
+      "source_type": "fictional_revision_notice",
+      "effective_date": "2026-08-01",
+      "supersedes": "DOC-E03-SPEC-V1",
+      "text": "The revised Daylight Sun Cream formula uses non-mineral UV filters and should not be described as mineral sunscreen.",
+      "claims": [
+        {
+          "supported_field": "attributes.mineral",
+          "asserted_value": false,
+          "excerpt": "The revised Daylight Sun Cream formula uses non-mineral UV filters and should not be described as mineral sunscreen."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E03-PACK",
+      "product_id": "SYN-E03",
+      "source_type": "fictional_pack_label",
+      "effective_date": "2026-08-01",
+      "supersedes": null,
+      "text": "The Daylight Sun Cream package states no added fragrance.",
+      "claims": [
+        {
+          "supported_field": "attributes.fragrance_free",
+          "asserted_value": true,
+          "excerpt": "The Daylight Sun Cream package states no added fragrance."
+        }
+      ]
+    },
+    {
+      "source_id": "DOC-E04-LIST",
+      "product_id": "SYN-E04",
+      "source_type": "fictional_product_listing",
+      "effective_date": "2026-05-05",
+      "supersedes": null,
+      "text": "Meadow Gentle Wash costs USD 12.00. The listing does not provide an ingredient or fragrance declaration.",
+      "claims": [
+        {
+          "supported_field": "price_usd",
+          "asserted_value": "12.00",
+          "excerpt": "Meadow Gentle Wash costs USD 12.00."
+        }
+      ]
+    }
+  ]
+}
