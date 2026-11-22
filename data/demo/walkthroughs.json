@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "fixture_id": "fictional-end-to-end-walkthrough-v1",
+  "provenance": "All product claims, source documents and scripted outputs are invented and deterministic; no LLM is used in walkthrough mode.",
+  "cases": [
+    {
+      "scenario_id": "consistent",
+      "title": "01 · Supported source",
+      "description": "A fictional cream has an active fragrance-free declaration. One scripted accepted draft, with actual citation tracing.",
+      "preferences": {
+        "request": "Cloud Calm Facial Cream fragrance-free moisturizer",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [
+        "{\"recommendations\":[{\"product_id\":\"SYN-E01\",\"reason\":\"The fictional product specification explicitly states that this cream contains no added fragrance.\",\"evidence_ids\":[\"E-SOURCE-001\"]}],\"no_suitable_match\":false}"
+      ],
+      "expected_status": "approved",
+      "expected_generator_calls": 1
+    },
+    {
+      "scenario_id": "revision",
+      "title": "02 · One bounded revision",
+      "description": "A scripted initial recommendation makes an unsubstantiated clinical claim. The deterministic Critic rejects it and accepts a safer second draft.",
+      "preferences": {
+        "request": "Cloud Calm Facial Cream fragrance-free moisturizer",
+        "required_category": "moisturizer",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [
+        "{\"recommendations\":[{\"product_id\":\"SYN-E01\",\"reason\":\"This product is clinically proven to cure eczema.\",\"evidence_ids\":[\"E-SOURCE-001\"]}],\"no_suitable_match\":false}",
+        "{\"recommendations\":[{\"product_id\":\"SYN-E01\",\"reason\":\"The authored fictional product specification describes this cream as made without added fragrance.\",\"evidence_ids\":[\"E-SOURCE-001\"]}],\"no_suitable_match\":false}"
+      ],
+      "expected_status": "approved",
+      "expected_generator_calls": 2
+    },
+    {
+      "scenario_id": "conflicting",
+      "title": "03 · Conflicting source records",
+      "description": "Active specification says fragrance-free but a fictional quality-control record says added fragrance. Preflight fails closed before any model call.",
+      "preferences": {
+        "request": "Dusk Barrier Balm",
+        "required_category": "balm",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [],
+      "expected_status": "insufficient_evidence",
+      "expected_generator_calls": 0
+    },
+    {
+      "scenario_id": "superseded",
+      "title": "04 · Superseded formulation",
+      "description": "The sunscreen's mineral label is stale: a later fictional revision asserts the opposite. The guard blocks this required attribute.",
+      "preferences": {
+        "request": "Daylight Mineral Sun Cream",
+        "required_category": "sunscreen",
+        "required_attributes": [
+          "mineral"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [],
+      "expected_status": "insufficient_evidence",
+      "expected_generator_calls": 0
+    },
+    {
+      "scenario_id": "missing",
+      "title": "05 · Required source is missing",
+      "description": "The cleanser metadata says fragrance-free but its authored source only states the price, so the evidence gate abstains.",
+      "preferences": {
+        "request": "Meadow Gentle Wash",
+        "required_category": "cleanser",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [],
+      "expected_status": "insufficient_evidence",
+      "expected_generator_calls": 0
+    },
+    {
+      "scenario_id": "hard_filter",
+      "title": "06 · Budget hard-filter",
+      "description": "A $5 cap excludes all fictional moisturizers. Retrieval returns no eligible candidate and generation is skipped.",
+      "preferences": {
+        "request": "Cloud Calm Facial Cream",
+        "required_category": "moisturizer",
+        "max_budget_usd": "5.00",
+        "required_attributes": [
+          "fragrance_free"
+        ]
+      },
+      "max_revisions": 1,
+      "generator_outputs": [],
+      "expected_status": "no_candidates",
+      "expected_generator_calls": 0
+    }
+  ]
+}
