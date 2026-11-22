@@ -1,0 +1,56 @@
+{
+  "suite_id": "single-agent-qwen-synthetic-smoke-v1",
+  "description": "Three fictional catalog products; tiny deterministic integration smoke, not a statistically valid recommendation benchmark.",
+  "catalog_path": "data/sample_catalog/catalog.json",
+  "cases": [
+    {
+      "case_id": "positive_fragrance_free",
+      "preferences": {
+        "request": "Recommend an unscented everyday face moisturizer under 30 dollars.",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "30.00"
+      },
+      "expected_type": "recommendation",
+      "expected_product_ids": [
+        "SYN-001"
+      ]
+    },
+    {
+      "case_id": "positive_with_price",
+      "preferences": {
+        "request": "Please suggest a fragrance-free moisturizer costing no more than USD 25, citing its evidence.",
+        "required_attributes": [
+          "fragrance_free"
+        ],
+        "max_budget_usd": "25.00"
+      },
+      "expected_type": "recommendation",
+      "expected_product_ids": [
+        "SYN-001"
+      ]
+    },
+    {
+      "case_id": "negative_over_budget",
+      "preferences": {
+        "request": "Find a face lotion costing under one dollar.",
+        "max_budget_usd": "1.00"
+      },
+      "expected_type": "no_match",
+      "expected_product_ids": []
+    },
+    {
+      "case_id": "negative_missing_attribute",
+      "preferences": {
+        "request": "Find a fragrance-free vegan moisturizer.",
+        "required_attributes": [
+          "vegan",
+          "fragrance_free"
+        ]
+      },
+      "expected_type": "no_match",
+      "expected_product_ids": []
+    }
+  ]
+}
