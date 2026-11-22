@@ -49,6 +49,12 @@ class AgentAttempt(Contract):
     proposed_product_ids: list[str] = Field(default_factory=list)
     generator_calls: int = Field(ge=1, le=1)
 
+    @model_validator(mode="after")
+    def validate_attempt_index(self) -> "AgentAttempt":
+        if self.is_revision != (self.attempt_number == 2):
+            raise ValueError("is_revision must match attempt_number")
+        return self
+
 
 class MultiAgentResult(Contract):
     status: Literal["approved", "abstained", "rejected", "no_candidates"]
@@ -65,6 +71,8 @@ class MultiAgentResult(Contract):
             raise ValueError("generator_calls must match attempt count")
         if self.revision_used != (len(self.attempts) == 2):
             raise ValueError("revision_used must match two attempts")
+        if [attempt.attempt_number for attempt in self.attempts] != list(range(1, len(self.attempts) + 1)):
+            raise ValueError("attempts must be sequential")
         if self.status in {"approved", "abstained"}:
             if self.answer is None or not self.attempts or not self.attempts[-1].verdict.approved:
                 raise ValueError("accepted result needs an approved final verdict and answer")
