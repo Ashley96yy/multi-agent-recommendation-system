@@ -46,6 +46,8 @@ jobs:
           result = json.loads(Path("artifacts/evaluation/qwen-single-agent.json").read_text())
           assert result["model_invocations"] == 2, "expected two real Qwen calls"
           assert result["positive_accept_rate"] > 0, "no positive Qwen response survived validation"
+          assert result["negative_no_match_rate"] == 1.0, "some hard-filter no-match cases failed"
+          assert result["case_count"] == 4, "expected all four frozen smoke cases"
           assert all(
               row["generated_tokens"] is not None and row["generated_tokens"] > 0
               for row in result["per_case"] if row["model_invocations"]
