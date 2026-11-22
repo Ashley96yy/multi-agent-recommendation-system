@@ -168,11 +168,16 @@ class TypedSourceGuard:
         if any(value != asserted_value for _, value in active):
             return False
         sources = {source_id for source_id, _ in active}
-        return any(
-            (evidence := self._evidence.get(eid)) is not None
-            and evidence.product_id == product_id
-            and evidence.supported_field == field
-            and evidence.source_id in sources
-            and evidence.source_id not in self._inactive_source_ids
-            for eid in evidence_ids
-        )
+        # Fail closed on *every* cited identifier: one valid source cannot
+        # launder a fabricated, off-field, cross-product or obsolete citation.
+        for eid in evidence_ids:
+            evidence = self._evidence.get(eid)
+            if (
+                evidence is None
+                or evidence.product_id != product_id
+                or evidence.supported_field != field
+                or evidence.source_id not in sources
+                or evidence.source_id in self._inactive_source_ids
+            ):
+                return False
+        return True
