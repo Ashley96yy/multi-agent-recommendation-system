@@ -1,7 +1,5 @@
 """Bounded three-role orchestration: zero or one revision, then final gate."""
 
-from pydantic import ValidationError
-
 from recsys.baseline.contracts import SingleAgentAnswer
 from recsys.multiagent.agents import (
     CriticVerificationAgent,
@@ -9,6 +7,7 @@ from recsys.multiagent.agents import (
     RecommendationAgent,
 )
 from recsys.multiagent.contracts import AgentAttempt, CriticVerdict, MultiAgentResult
+from recsys.multiagent.output_policy import FormatPolicy, normalize_json_response
 from recsys.schemas import UserPreferences
 
 
@@ -26,13 +25,21 @@ class MultiAgentOrchestrator:
         critic_agent: CriticVerificationAgent,
         *,
         max_revisions: int = 1,
+        format_policy: FormatPolicy = "strict",
+        evidence_preflight: bool = False,
     ):
         if type(max_revisions) is not int or max_revisions not in (0, 1):
             raise ValueError("max_revisions must be 0 or 1")
         self.retrieval_agent = retrieval_agent
         self.recommendation_agent = recommendation_agent
         self.critic_agent = critic_agent
+        if format_policy not in ("strict", "safe_json_normalization"):
+            raise ValueError("unknown format policy")
+        if type(evidence_preflight) is not bool:
+            raise ValueError("evidence_preflight must be bool")
         self.max_revisions = max_revisions
+        self.format_policy = format_policy
+        self.evidence_preflight = evidence_preflight
 
     def run(self, preferences: UserPreferences, *, top_k: int = 3) -> MultiAgentResult:
         retrieval = self.retrieval_agent.run(preferences, top_k=top_k)
@@ -42,12 +49,29 @@ class MultiAgentOrchestrator:
                 generator_calls=0, note=retrieval.no_match_reason,
             )
 
+        if self.evidence_preflight and preferences.required_attributes:
+            needed = {f"attributes.{name}" for name in preferences.required_attributes}
+            supported = [
+                c for c in retrieval.candidates
+                if needed <= {e.supported_field for e in c.evidence}
+            ]
+            if not supported:
+                return MultiAgentResult(
+                    status="insufficient_evidence", retrieval=retrieval, answer=None,
+                    generator_calls=0,
+                    note="No retrieved product has citations for all required attribute fields",
+                )
+            if len(supported) < len(retrieval.candidates):
+                retrieval = retrieval.model_copy(update={"candidates": supported})
+
         attempts: list[AgentAttempt] = []
         feedback: CriticVerdict | None = None
         for revision in range(self.max_revisions + 1):
+            format_actions: list[str] = []
             try:
                 raw = self.recommendation_agent.propose(retrieval, feedback=feedback)
-                answer = SingleAgentAnswer.model_validate_json(raw)
+                normalized, format_actions = normalize_json_response(raw, self.format_policy)
+                answer = SingleAgentAnswer.model_validate_json(normalized)
                 parse_valid = True
             except Exception:
                 # A generator/transport failure also counts as one attempted
@@ -68,6 +92,7 @@ class MultiAgentOrchestrator:
                     [rec.product_id for rec in answer.recommendations] if answer is not None else []
                 ),
                 generator_calls=1,
+                format_actions=format_actions,
             ))
             if verdict.approved:
                 return MultiAgentResult(
