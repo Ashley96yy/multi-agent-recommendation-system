@@ -1,0 +1,89 @@
+name: Stage 3.6 Real Qwen Label Decoding Ablation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/stage36-critic-label-constraints
+    paths:
+      - '.github/workflows/stage36-real-qwen-label-ablation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  real-qwen-label-prompt-and-token-constraints:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU-only PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned Qwen runtime and tests
+        run: python -m pip install -e ".[dev,local-llm]"
+      - name: Run all offline tests before model downloads
+        run: python -m pytest
+      - name: Run three independent real Qwen inference arms
+        run: |
+          python -m recsys.evaluation.run_label_ablation \
+            --output artifacts/evaluation/stage36-real-qwen-label-ablation.json
+      - name: Check frozen cases, model calls, shared prompt factors and honest metrics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path("artifacts/evaluation/stage36-real-qwen-label-ablation.json").read_text())
+          run=report["generation"]
+          assert report["suite_id"]=="atomic-claims-fictional-v1"
+          assert run["physical_model_invocations"]==78
+          assert run["fixed_case_count"]==26
+          assert set(run["arms"])=={
+              "plain_label","decision_label","decision_label_constrained"
+          }
+          p,d,c=(run["arms"][name] for name in (
+              "plain_label","decision_label","decision_label_constrained"
+          ))
+          assert p["prompt_sha256"]!=d["prompt_sha256"]
+          assert d["prompt_sha256"]==c["prompt_sha256"]
+          assert not d["uses_true_token_constraint"]
+          assert c["uses_true_token_constraint"]
+          for name,arm in run["arms"].items():
+              assert arm["physical_model_invocations"]==26
+              assert len(arm["per_case"])==26
+              assert all(row["model_calls"]==1 for row in arm["per_case"])
+              assert all(row["prompt_tokens"]>0 and row["generated_tokens"]>0
+                         for row in arm["per_case"])
+              assert all(row["raw_output_contract"]=="one_exact_lowercase_label_no_json"
+                         for row in arm["per_case"])
+              result=report["author_label_comparison"][name]
+              assert result["all"]["cases"]==26
+              assert result["typed"]["cases"]==22
+              assert result["open_text"]["cases"]==4
+              assert result["human_calibrated_accuracy"] is None
+          for unmasked,masked in zip(d["per_case"],c["per_case"]):
+              assert unmasked["case_id"]==masked["case_id"]
+              assert unmasked["context_sha256"]==masked["context_sha256"]
+              assert unmasked["prompt_sha256"]==masked["prompt_sha256"]
+          assert c["valid_label_outputs"]==26
+          assert c["invalid_outputs"]==0
+          assert report["human_calibrated_accuracy"] is None
+          assert report["real_world_groundedness"] is None
+          print("Full real-Qwen 78-call token-constraint and prompt ablation verified.")
+          PY
+      - name: Preserve raw model outputs, source hashes, tokens and failure cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage36-real-qwen-three-arm-label-ablation
+          path: artifacts/evaluation/stage36-real-qwen-label-ablation.json
+          if-no-files-found: warn
