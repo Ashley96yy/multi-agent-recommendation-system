@@ -113,7 +113,7 @@ python -m recsys.demo.checks --real-qwen-smoke \
   --output artifacts/evaluation/stage40-real-qwen-smoke.json
 ```
 
-The main CI runs the offline tests. Independent opt-in workflows preserved the actual Qwen/Gradio experiment outputs and evidence, including [the Stage 4.0 recorded CI and real-model smoke](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45063616834).
+The main CI runs offline tests **and all six scripted E2E smoke scenarios without model weights**. Independent opt-in workflows preserved the actual Qwen/Gradio experiment outputs and evidence, including [the Stage 4.0 recorded CI and real-model smoke](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45063616834).
 
 ## Project status, limitations and interview narrative
 
@@ -121,7 +121,7 @@ The main CI runs the offline tests. Independent opt-in workflows preserved the a
 
 The most important lesson: **a valid schema or linked citation is not a guarantee of factual support**, and **a model retry cannot create missing evidence**. The runtime uses the reliable typed deterministic source guard as the hard approval authority, while keeping the separate experimental LLM Critic's negative results visible.
 
-[Recruiter walkthrough](docs/RECRUITER_DEMO.md) · [Full evaluation](docs/FINAL_EVALUATION.md) · [Architecture](docs/SYSTEM_ARCHITECTURE.md) · [Local demo manual](docs/stage40_interactive_demo.md) · [All original experiment docs and provenance](docs/PROVENANCE.md)
+[Recruiter walkthrough](docs/RECRUITER_DEMO.md) · [Full evaluation](docs/FINAL_EVALUATION.md) · [Architecture](docs/SYSTEM_ARCHITECTURE.md) · [Project closeout](docs/PROJECT_CLOSEOUT.md) · [Local demo manual](docs/stage40_interactive_demo.md) · [Original experiment provenance](docs/PROVENANCE.md)
 
 ### Independent implementation
 
