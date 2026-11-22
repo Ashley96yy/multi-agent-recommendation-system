@@ -1,0 +1,91 @@
+name: Real Qwen Multi-Agent Paired 25
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/real-multiagent-qwen-eval
+    paths:
+      - '.github/workflows/real-multiagent-paired-25.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  real-qwen-paired-eval:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU-only PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned model runtime and tests
+        run: python -m pip install -e ".[dev,semantic,local-llm]"
+      - name: Verify architecture and evaluation contracts
+        run: python -m pytest
+      - name: Recover original independent Single-Agent run for comparison
+        run: |
+          mkdir -p artifacts/evaluation
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14766315185/zip" > artifacts/evaluation/original-baseline.zip
+          echo "e6b45b6abf77bff7fdec3167b3b0d4fe82605ca21f2c5868c892040cdfae2635  artifacts/evaluation/original-baseline.zip" | sha256sum --check
+          unzip -p artifacts/evaluation/original-baseline.zip single-agent-baseline-25.json > artifacts/evaluation/original-baseline.json
+      - name: Execute real Qwen paired first-draft and one-revision benchmark
+        run: |
+          python -m recsys.evaluation.run_multiagent_eval \
+            --catalog data/retrieval_eval/catalog.json \
+            --suite data/baseline_eval/suite.json \
+            --original-report artifacts/evaluation/original-baseline.json \
+            --output artifacts/evaluation/multiagent-qwen-paired-25.json
+      - name: Check experiment completeness, not an accuracy threshold
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("artifacts/evaluation/multiagent-qwen-paired-25.json").read_text())
+          assert data["design"] == "paired_shared_first_draft"
+          assert data["no_revision_is_projection_not_second_model_run"] is True
+          assert data["first_draft_model_invocations"] == 19
+          assert 0 <= data["revision_model_invocations"] <= 19
+          assert data["zero_revision"]["logical_generator_attempts"] == 19
+          assert data["one_revision"]["logical_generator_attempts"] == 19 + data["revision_model_invocations"]
+          assert data["physical_model_invocations"] == (
+              data["first_draft_model_invocations"] + data["revision_model_invocations"]
+          )
+          for arm in ("zero_revision", "one_revision"):
+              report = data[arm]
+              assert report["case_count"] == 25
+              assert report["normal_count"] == 15
+              assert report["red_team_count"] == 10
+              assert report["no_match_count"] == 6
+              assert report["no_match_zero_call_count"] == 6
+              assert len(report["per_case"]) == 25
+              assert report["semantic_citation_groundedness"] is None
+              assert report["unsupported_claim_rate"] is None
+              assert all(row["semantic_entailment_verified"] is False for row in report["per_case"])
+          for a, b in zip(data["zero_revision"]["per_case"], data["one_revision"]["per_case"]):
+              assert a["case_id"] == b["case_id"]
+              if a["logical_generator_attempts"]:
+                  assert a["calls"][0] == b["calls"][0]
+                  assert b["logical_generator_attempts"] in (1, 2)
+          assert 0 <= data["historical_baseline_diagnostic"]["exact_first_draft_matches"] <= 19
+          print("Real shared-first-draft paired benchmark completed and audited.")
+          PY
+      - name: Upload original paired traces, tokens, errors and judgments
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qwen-multiagent-paired-25-real-cpu
+          path: artifacts/evaluation/multiagent-qwen-paired-25.json
+          if-no-files-found: warn
