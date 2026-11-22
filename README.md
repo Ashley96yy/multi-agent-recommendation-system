@@ -18,6 +18,39 @@ source-grounded product recommendation and a controlled comparison of
 > accuracy **have not been measured**. This is not three LLM agents
 > collaborating end to end.
 
+## Run the Stage 4.0 local interactive demo
+
+The local **Gradio** UI runs the *existing* three-role retrieval,
+recommendation and deterministic Critic workflow with at most **one
+revision**. It exposes source citations, conflicting/obsolete
+documents, hard-filter reasons, per-attempt Critic issues and a strict
+boundary between final approved output and rejected raw drafts.
+
+Try **six clearly labeled PREWRITTEN fictional walkthroughs** without
+downloading any LLM:
+
+```bash
+python -m pip install -e ".[demo]"
+python -m recsys.demo.app --host 127.0.0.1 --port 7860
+# Open http://127.0.0.1:7860
+```
+
+For opt-in **REAL pinned local Qwen** inference, install the
+`local-llm` extra as well and select the second UI tab:
+
+```bash
+python -m pip install -e ".[demo,local-llm]"
+python -m recsys.demo.app
+```
+
+The UI binds only to localhost, generates no public sharing link,
+and lazily loads model weights only when a model-eligible request
+passes the typed evidence preflight. All catalog products/sources
+are **fictional**; the source Critic cannot prove model-generated
+natural-language claims are semantically entailed. See the
+[interactive demo walkthrough, architecture and limitations](
+docs/stage40_interactive_demo.md).
+
 ## Research question
 
 **Does multi-agent verification reduce unsupported product claims and improve
@@ -53,6 +86,7 @@ and fixed scenarios using three controlled configurations:
 | Stage 3.3 runtime source guard | Implemented and unit-tested | Opt-in active-source conflict, supersession, missing claim, stale metadata and explicit typed claim checks; not a language entailment model |
 | Recorded Stage 3.2 output replay | Measured offline | Original 19 real Qwen first drafts: strict 3 approved / 0 label successes; normalized 9 approved / 4 label successes; zero new Qwen calls |
 | Three-role orchestration and critic / revision | Real Qwen integration measured | Shared first draft, 19 initial Qwen calls + 16 real revisions; neither arm achieved a strict positive success on 19 synthetic positives |
+| Stage 4.0 Gradio interactive E2E demo | Implemented; independent UI/E2E validation in CI | Six clearly scripted fictional scenarios plus optional real pinned Qwen tab; source and revision traces; local-only port; no semantic-entailment claim |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
 
 ## Reproduce lightweight tests
@@ -356,6 +390,7 @@ python -m recsys.evaluation.run_label_ablation \
 - [Measured Stage 3.5 real Qwen 0/26 failure analysis](docs/stage35_real_qwen_critic_results_20261122.md)
 - [Stage 3.6 prompt and true token-label constraint evaluation protocol](docs/stage36_constrained_label_protocol.md)
 - [Measured Stage 3.6 78-call Qwen prompt and label-decoding outcomes](docs/stage36_real_qwen_results_20261122.md)
+- [Stage 4.0 interactive Gradio demo, architecture and reproducible walkthrough](docs/stage40_interactive_demo.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
