@@ -1,0 +1,85 @@
+name: Stage 3.3 Real Qwen Reliability and Source Guard
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/live-reliability-conflict-guard
+    paths:
+      - '.github/workflows/stage33-live-qwen-matrix.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live-qwen-and-conflict-guard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install pinned public Qwen and MiniLM runtimes
+        run: python -m pip install -e ".[dev,semantic,local-llm]"
+      - name: Run entire offline unit suite
+        run: python -m pytest
+      - name: Run live first-pass Qwen policy matrix and fictional source smoke
+        run: |
+          python -m recsys.evaluation.run_live_reliability \
+            --output artifacts/evaluation/stage33-real-qwen-matrix.json
+      - name: Validate real model calls, full fixed suite and guard behavior
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path("artifacts/evaluation/stage33-real-qwen-matrix.json").read_text())
+          matrix = r["matrix"]
+          arms = matrix["arms"]
+          assert matrix["design"] == "real_qwen_first_pass_2x2_shared_identical_prompts"
+          assert matrix["model_revisions_per_request"] == 0
+          assert matrix["physical_model_invocations"] == 19
+          assert len(matrix["physical_call_records"]) == 19
+          assert all(x["raw_output"] is not None for x in matrix["physical_call_records"])
+          assert all(x["generated_tokens"] is not None and x["generated_tokens"] > 0
+                     for x in matrix["physical_call_records"])
+          assert len(arms) == 4
+          for arm in arms.values():
+              assert arm["case_count"] == 25
+              assert len(arm["per_case"]) == 25
+              assert arm["no_match_zero_call_count"] == 6
+              assert arm["semantic_citation_groundedness"] is None
+          assert arms["no_preflight__strict"]["logical_generator_calls"] == 19
+          assert arms["no_preflight__safe_json_normalization"]["logical_generator_calls"] == 19
+          assert arms["preflight__strict"]["logical_generator_calls"] == 10
+          assert arms["preflight__safe_json_normalization"]["logical_generator_calls"] == 10
+          assert arms["preflight__strict"]["insufficient_evidence_count"] == 9
+          for a, b in zip(arms["no_preflight__strict"]["per_case"],
+                          arms["no_preflight__safe_json_normalization"]["per_case"]):
+              assert a["case_id"] == b["case_id"]
+              assert a["raw_first_output"] == b["raw_first_output"]
+              assert a["prompt_context_sha256"] == b["prompt_context_sha256"]
+          smoke = r["fictional_source_guard_smoke"]
+          assert smoke["physical_model_invocations"] == 1
+          assert [x["status"] for x in smoke["results"][1:]] == ["insufficient_evidence"] * 3
+          assert r["total_physical_model_invocations"] == 20
+          assert r["unsupported_claim_rate"] is None
+          assert r["semantic_citation_groundedness"] is None
+          print("Real Qwen first-pass policies and fictional source guard independently verified.")
+          PY
+      - name: Archive actual real Qwen outputs, tokens, decisions, model metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage33-real-qwen-reliability
+          path: artifacts/evaluation/stage33-real-qwen-matrix.json
+          if-no-files-found: warn
