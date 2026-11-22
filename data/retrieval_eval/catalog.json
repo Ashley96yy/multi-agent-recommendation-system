@@ -1,0 +1,402 @@
+{
+  "products": [
+    {
+      "product_id": "SYN-R01",
+      "title": "Calming Hydration Face Cream",
+      "brand": "Sample Studio",
+      "category": "moisturizer",
+      "price_usd": "22.00",
+      "attributes": {
+        "fragrance_free": true,
+        "hydrating": true,
+        "sensitive_skin": true
+      }
+    },
+    {
+      "product_id": "SYN-R02",
+      "title": "Citrus Scent Body Lotion",
+      "brand": "Sample Grove",
+      "category": "moisturizer",
+      "price_usd": "14.00",
+      "attributes": {
+        "fragrance_free": false,
+        "hydrating": true
+      }
+    },
+    {
+      "product_id": "SYN-R03",
+      "title": "Deep Moisture Body Butter",
+      "brand": "Sample Coast",
+      "category": "moisturizer",
+      "price_usd": "27.00",
+      "attributes": {
+        "fragrance_free": true,
+        "hydrating": true
+      }
+    },
+    {
+      "product_id": "SYN-R04",
+      "title": "Daily SPF 50 Mineral Sunscreen",
+      "brand": "Sample Sun",
+      "category": "sunscreen",
+      "price_usd": "19.00",
+      "attributes": {
+        "mineral": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R05",
+      "title": "Lightweight UV Protection Gel",
+      "brand": "Sample Sun",
+      "category": "sunscreen",
+      "price_usd": "25.00",
+      "attributes": {
+        "mineral": false,
+        "oil_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R06",
+      "title": "Gentle Cream Facial Wash",
+      "brand": "Sample Studio",
+      "category": "cleanser",
+      "price_usd": "13.00",
+      "attributes": {
+        "fragrance_free": true,
+        "gentle": true
+      }
+    },
+    {
+      "product_id": "SYN-R07",
+      "title": "Foaming Oil Control Cleanser",
+      "brand": "Sample Grove",
+      "category": "cleanser",
+      "price_usd": "12.00",
+      "attributes": {
+        "oil_free": true,
+        "fragrance_free": false
+      }
+    },
+    {
+      "product_id": "SYN-R08",
+      "title": "Hydrating Hyaluronic Acid Serum",
+      "brand": "Sample Bloom",
+      "category": "serum",
+      "price_usd": "21.00",
+      "attributes": {
+        "hydrating": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R09",
+      "title": "Brightening Vitamin C Serum",
+      "brand": "Sample Bloom",
+      "category": "serum",
+      "price_usd": "35.00",
+      "attributes": {
+        "brightening": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R10",
+      "title": "Blemish Care Salicylic Acid Toner",
+      "brand": "Sample Clear",
+      "category": "toner",
+      "price_usd": "16.00",
+      "attributes": {
+        "exfoliating": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R11",
+      "title": "Soothing Barrier Repair Balm",
+      "brand": "Sample Studio",
+      "category": "balm",
+      "price_usd": "28.00",
+      "attributes": {
+        "barrier_support": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R12",
+      "title": "Travel Size Fragrance-Free Face Cream",
+      "brand": "Sample Pocket",
+      "category": "moisturizer",
+      "price_usd": "9.00",
+      "attributes": {
+        "travel_size": true,
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R13",
+      "title": "Daily Face Cream With Unknown Price",
+      "brand": "Sample Pocket",
+      "category": "moisturizer",
+      "price_usd": null,
+      "attributes": {
+        "fragrance_free": true
+      }
+    },
+    {
+      "product_id": "SYN-R14",
+      "title": "Soft Wash Body Cleanser",
+      "brand": "Sample Grove",
+      "category": "cleanser",
+      "price_usd": "11.00",
+      "attributes": {
+        "fragrance_free": false
+      }
+    },
+    {
+      "product_id": "SYN-R15",
+      "title": "Gentle Makeup Removing Balm",
+      "brand": "Sample Clear",
+      "category": "cleanser",
+      "price_usd": "17.00",
+      "attributes": {
+        "fragrance_free": true,
+        "gentle": true
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "E-SYN-R01-T",
+      "product_id": "SYN-R01",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Calming Hydration Face Cream."
+    },
+    {
+      "evidence_id": "E-SYN-R01-P",
+      "product_id": "SYN-R01",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 22.00."
+    },
+    {
+      "evidence_id": "E-SYN-R02-T",
+      "product_id": "SYN-R02",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Citrus Scent Body Lotion."
+    },
+    {
+      "evidence_id": "E-SYN-R02-P",
+      "product_id": "SYN-R02",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 14.00."
+    },
+    {
+      "evidence_id": "E-SYN-R03-T",
+      "product_id": "SYN-R03",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Deep Moisture Body Butter."
+    },
+    {
+      "evidence_id": "E-SYN-R03-P",
+      "product_id": "SYN-R03",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 27.00."
+    },
+    {
+      "evidence_id": "E-SYN-R04-T",
+      "product_id": "SYN-R04",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Daily SPF 50 Mineral Sunscreen."
+    },
+    {
+      "evidence_id": "E-SYN-R04-P",
+      "product_id": "SYN-R04",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 19.00."
+    },
+    {
+      "evidence_id": "E-SYN-R05-T",
+      "product_id": "SYN-R05",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Lightweight UV Protection Gel."
+    },
+    {
+      "evidence_id": "E-SYN-R05-P",
+      "product_id": "SYN-R05",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 25.00."
+    },
+    {
+      "evidence_id": "E-SYN-R06-T",
+      "product_id": "SYN-R06",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Gentle Cream Facial Wash."
+    },
+    {
+      "evidence_id": "E-SYN-R06-P",
+      "product_id": "SYN-R06",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 13.00."
+    },
+    {
+      "evidence_id": "E-SYN-R07-T",
+      "product_id": "SYN-R07",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Foaming Oil Control Cleanser."
+    },
+    {
+      "evidence_id": "E-SYN-R07-P",
+      "product_id": "SYN-R07",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 12.00."
+    },
+    {
+      "evidence_id": "E-SYN-R08-T",
+      "product_id": "SYN-R08",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Hydrating Hyaluronic Acid Serum."
+    },
+    {
+      "evidence_id": "E-SYN-R08-P",
+      "product_id": "SYN-R08",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 21.00."
+    },
+    {
+      "evidence_id": "E-SYN-R09-T",
+      "product_id": "SYN-R09",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Brightening Vitamin C Serum."
+    },
+    {
+      "evidence_id": "E-SYN-R09-P",
+      "product_id": "SYN-R09",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 35.00."
+    },
+    {
+      "evidence_id": "E-SYN-R10-T",
+      "product_id": "SYN-R10",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Blemish Care Salicylic Acid Toner."
+    },
+    {
+      "evidence_id": "E-SYN-R10-P",
+      "product_id": "SYN-R10",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 16.00."
+    },
+    {
+      "evidence_id": "E-SYN-R11-T",
+      "product_id": "SYN-R11",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Soothing Barrier Repair Balm."
+    },
+    {
+      "evidence_id": "E-SYN-R11-P",
+      "product_id": "SYN-R11",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 28.00."
+    },
+    {
+      "evidence_id": "E-SYN-R12-T",
+      "product_id": "SYN-R12",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Travel Size Fragrance-Free Face Cream."
+    },
+    {
+      "evidence_id": "E-SYN-R12-P",
+      "product_id": "SYN-R12",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 9.00."
+    },
+    {
+      "evidence_id": "E-SYN-R13-T",
+      "product_id": "SYN-R13",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Daily Face Cream With Unknown Price."
+    },
+    {
+      "evidence_id": "E-SYN-R14-T",
+      "product_id": "SYN-R14",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Soft Wash Body Cleanser."
+    },
+    {
+      "evidence_id": "E-SYN-R14-P",
+      "product_id": "SYN-R14",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 11.00."
+    },
+    {
+      "evidence_id": "E-SYN-R15-T",
+      "product_id": "SYN-R15",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "title",
+      "excerpt": "Fictional listing title: Gentle Makeup Removing Balm."
+    },
+    {
+      "evidence_id": "E-SYN-R15-P",
+      "product_id": "SYN-R15",
+      "source_id": "synthetic-eval-catalog-v1",
+      "source_type": "synthetic_catalog",
+      "supported_field": "price_usd",
+      "excerpt": "Fictional listed price: USD 17.00."
+    }
+  ]
+}
