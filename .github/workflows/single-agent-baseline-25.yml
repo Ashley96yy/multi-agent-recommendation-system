@@ -1,0 +1,66 @@
+name: Single-Agent Baseline 25 Evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/baseline-evaluation-v1
+    paths:
+      - '.github/workflows/single-agent-baseline-25.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate-single-agent:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install CPU-only PyTorch
+        run: python -m pip install --no-cache-dir "torch==2.6.0+cpu" --index-url https://download.pytorch.org/whl/cpu
+      - name: Install model dependencies and tests
+        run: python -m pip install -e ".[dev,semantic,local-llm]"
+      - name: Test evaluation contracts
+        run: python -m pytest
+      - name: Run real 15 plus 10 model benchmark
+        run: |
+          python -m recsys.evaluation.run_baseline_eval \
+            --retrieval-backend minilm \
+            --top-k 3 \
+            --max-new-tokens 240 \
+            --output artifacts/evaluation/single-agent-baseline-25.json
+      - name: Validate artifact completeness (not accuracy threshold)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("artifacts/evaluation/single-agent-baseline-25.json").read_text())
+          assert report["case_count"] == 25
+          assert report["normal_count"] == 15
+          assert report["red_team_count"] == 10
+          assert len(report["per_case"]) == 25
+          assert len({row["case_id"] for row in report["per_case"]}) == 25
+          assert report["model_invocations"] > 0
+          assert report["tokens"]["generated_total"] > 0
+          assert report["unsupported_claim_rate"] is None
+          assert report["semantic_citation_groundedness"] is None
+          print("Full model benchmark executed; outcomes and failures are preserved.")
+          PY
+      - name: Upload complete evaluation even on model failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: single-agent-baseline-25-real-qwen
+          path: artifacts/evaluation/single-agent-baseline-25.json
+          if-no-files-found: warn
