@@ -1,408 +1,128 @@
 # Evidence-Grounded Multi-Agent Recommendation System
 
-Independent **Applied AI / AI Engineering** portfolio project focused on reliable,
-source-grounded product recommendation and a controlled comparison of
-**Single-Agent RAG** against a **three-agent verification workflow**.
+**Applied AI / ML Engineering portfolio · Python · Pydantic · RAG · Qwen2.5 · Gradio · Source Provenance**
 
-> **Current state:** Retrieval, real pinned-Qwen recommendation generation,
-> bounded three-role orchestration and deterministic source checks have
-> been measured on fictional cases. A **separate real Qwen model-based
-> atomic-claim Critic** was evaluated in Stage 3.5 and **failed** its strict
-> four-class contract: only 3/26 outputs were schema-valid, and **0/26**
-> matched the author-written case labels. No improvement is claimed.
-> In Stage 3.6, a separate **78-call real Qwen** ablation tested
-> label-only prompt engineering and true token-constrained decoding:
-> the stronger prompt produced 26/26 valid labels but only **8/26**
-> author-label matches; adding token masking changed **no predictions**.
-> Real recommendation-prose groundedness and independent human-calibrated
-> accuracy **have not been measured**. This is not three LLM agents
-> collaborating end to end.
+A locally runnable recommendation workflow that **retrieves eligible products, generates a sourced proposal, and checks source evidence before accepting it**. It is designed to make model failures, missing evidence, document conflicts, and revision costs **visible and auditable**, not to claim that a small model can reliably fact-check arbitrary prose.
 
-## Run the Stage 4.0 local interactive demo
+The system has three **functional roles**: **Preference & Retrieval**, **Recommendation**, and **Critic & Verification**. Retrieval and the approval Critic are deterministic Python; **only the Recommendation role** optionally uses a real pinned Qwen language model. There is at most **one revision**.
 
-The local **Gradio** UI runs the *existing* three-role retrieval,
-recommendation and deterministic Critic workflow with at most **one
-revision**. It exposes source citations, conflicting/obsolete
-documents, hard-filter reasons, per-attempt Critic issues and a strict
-boundary between final approved output and rejected raw drafts.
+> **Scope:** All sample products, sources and reference labels are **fictional / author-constructed**. This is an **independent AI engineering portfolio prototype**, not three LLMs cooperating, a real shopping platform, or a validated production semantic fact-checker. A verified local demo is available; there is **no hosted public app**.
 
-Try **six clearly labeled PREWRITTEN fictional walkthroughs** without
-downloading any LLM:
+## Run the interactive demo
+
+**Python 3.11+**. The guided scenario mode needs no model weights, Hugging Face download or API key:
 
 ```bash
+git clone https://github.com/Ashley96yy/multi-agent-recommendation-system.git
+cd multi-agent-recommendation-system
 python -m pip install -e ".[demo]"
-python -m recsys.demo.app --host 127.0.0.1 --port 7860
-# Open http://127.0.0.1:7860
+python -m recsys.demo.app
 ```
 
-For opt-in **REAL pinned local Qwen** inference, install the
-`local-llm` extra as well and select the second UI tab:
+Open **http://127.0.0.1:7860**. On the **Guided walkthrough** tab, choose one of six **explicitly scripted** cases:
+
+| Walkthrough | Demonstrated engineering behavior |
+| --- | --- |
+| **Supported source** | Approved fictional recommendation with source ID and verbatim excerpt |
+| **One bounded revision** | Initial unsupported clinical phrase is rejected; revised scripted draft may be accepted |
+| **Conflicting sources** | Two active documents disagree; fail closed with **zero model calls** |
+| **Superseded formulation** | Newer source contradicts obsolete product metadata; zero-call abstention |
+| **Missing evidence** | Required attribute has no active documentary source; zero-call abstention |
+| **Budget hard-filter** | No eligible candidate exists; no generation needed |
+
+This mode exercises the **real application controller** with **PREWRITTEN JSON proposals**. It **does not run or score a language model**.
+
+For opt-in **real local Qwen CPU inference**, install both extras and choose the second tab:
 
 ```bash
 python -m pip install -e ".[demo,local-llm]"
 python -m recsys.demo.app
 ```
 
-The UI binds only to localhost, generates no public sharing link,
-and lazily loads model weights only when a model-eligible request
-passes the typed evidence preflight. In a successful independent
-GitHub Actions run, **179 tests passed**, the Gradio UI built
-successfully, **all six scripted paths** passed, and **one real Qwen
-smoke request** was approved by the deterministic Critic. This is
-not a real-world accuracy or groundedness score.
+The pinned public Qwen model is downloaded **only after** an eligible request passes the source preflight. The result might be approved or rejected; rejected drafts remain in the explicitly **unverified trace**, never the final recommendation. The local UI binds to `127.0.0.1` and disables Gradio public sharing.
 
-All catalog products/sources are **fictional**; the source Critic
-cannot prove model-generated natural-language claims are semantically
-entailed. See the [interactive demo walkthrough](
-docs/stage40_interactive_demo.md) and [measured E2E trace report](
-docs/stage40_e2e_results_20261122.md).
+**Start here:** [Two-minute hiring-manager walkthrough](docs/RECRUITER_DEMO.md) · [Full Gradio guide](docs/stage40_interactive_demo.md) · [Verified Stage 4.0 E2E run](docs/stage40_e2e_results_20261122.md).
 
-## Research question
+## Architecture: how the roles work
 
-**Does multi-agent verification reduce unsupported product claims and improve
-constraint satisfaction enough to justify its additional latency and tokens?**
+```mermaid
+flowchart LR
+    A[Validated user preferences] --> B[Preference & Retrieval Agent]
+    B --> C{Eligible candidates?}
+    C -- No --> N[No candidates / zero calls]
+    C -- Yes --> D[Source & evidence preflight]
+    D -- Conflict / obsolete / missing --> I[Insufficient evidence / zero calls]
+    D -- Evidence available --> E[Recommendation Agent: real Qwen or scripted fixture]
+    E --> F[Pydantic response contract]
+    F --> G[Deterministic Critic & Verification]
+    G -- Approved --> H[Final recommendation + cited excerpts]
+    G -- Rejected, revision budget remains --> R[One feedback-coded revision]
+    R --> E
+    G -- Rejected, budget exhausted --> J[No approved recommendation]
+```
 
-The project will eventually compare the same pinned model, retrieval evidence,
-and fixed scenarios using three controlled configurations:
+The **Critic** checks hard constraints, candidate/evidence ID ownership, required attribute fields, active typed source conflicts, superseding revisions and narrow prohibited-phrase policies. It **does not** automatically establish that every word of an LLM-generated reason is semantically entailed by sources.
 
-1. Single-Agent RAG (measured on frozen 15+10 synthetic cases).
-2. Multi-role workflow with Critic, no revision (real-Qwen paired experiment measured).
-3. Same workflow with one bounded revision (real-Qwen paired experiment measured).
+**Engineering invariants:** strict input/output contracts; SHA-256 provenance; metadata filters before inference; source conflict/missing/obsolete checks; zero-call early exits; exactly zero or one revision; final-approved output separated from untrusted draft history; original raw model outputs and tokens preserved for evaluation.
 
-## Implemented components
+[Detailed architecture, module boundaries and limitations](docs/SYSTEM_ARCHITECTURE.md).
 
-| Component | Status | Notes |
+## Evidence, not just demos: measured experimental outcomes
+
+This repository preserves both **successful engineering checks** and **negative model-quality findings**. Metrics below refer to **specific synthetic / authored scenarios**, **not real-world recommendation accuracy**.
+
+| Experiment | Recorded outcome | Interpretation |
 | --- | --- | --- |
-| Strict data contracts | Complete | Pydantic; synthetic products, preferences, linked evidence |
-| Metadata-safe catalog filtering | Complete | Exclusions, category, budget and required attributes |
-| Vector retrieval | Complete | Offline lexical baseline + optional pinned MiniLM |
-| Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
-| One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
-| Local Qwen model adapter | Smoke verified | Pinned public 0.5B model; 2 actual calls and 2/2 structural positives in a tiny synthetic run |
-| Frozen single-agent evaluation | Measured | 15 normal + 10 adversarial synthetic cases; strict 2/19 positive successes, 13 format/schema failures |
-| Format-only replay ablation | Measured | Same frozen Qwen outputs: strict 2/19 vs normalized 12/19 positive successes; no new model calls |
-| Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
-| Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
-| Typed atomic claim evaluation | Measured on fictional authored labels | 26 cases: 22 typed supported/contradicted/unsupported/ambiguous, 4 open-text human-review abstentions; 22/22 typed fixture agreement, not real semantic accuracy |
-| Model-based atomic claim Critic (Stage 3.5) | Real pinned-Qwen negative result measured | 26 real calls; 3/26 valid four-class outputs, 0/26 author-label matches; extremely ambiguity-biased, no real groundedness claim |
-| Stage 3.6 prompt / true token-label ablation | Real 78-call Qwen experiment measured | Brief prompt 18/26 canonical labels, 7/26 author matches; decision prompt 26/26 labels, 8/26 matches; same prompt + token mask identical predictions, 8/26 matches |
-| Independent human calibration | Review workflow prepared, no actual reviews yet | Separate blank Reviewer A/B packets, source hashes, complete reviewer labeling validation, Cohen's kappa and blind independent review protocol; no human-calibrated score claimed |
-| Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
-| Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
-| Stage 3.3 runtime source guard | Implemented and unit-tested | Opt-in active-source conflict, supersession, missing claim, stale metadata and explicit typed claim checks; not a language entailment model |
-| Recorded Stage 3.2 output replay | Measured offline | Original 19 real Qwen first drafts: strict 3 approved / 0 label successes; normalized 9 approved / 4 label successes; zero new Qwen calls |
-| Three-role orchestration and critic / revision | Real Qwen integration measured | Shared first draft, 19 initial Qwen calls + 16 real revisions; neither arm achieved a strict positive success on 19 synthetic positives |
-| Stage 4.0 Gradio interactive E2E demo | **CI-verified** local UI and real Qwen smoke | 179 tests passed; 52 Gradio components / 3 callbacks; 6 deterministic scripted scenarios passed; 1 real Qwen call structurally approved; local-only UI, no semantic claim |
-| Full model comparison and deployment | Not implemented | Await broader verified evaluation |
+| Retrieval: lexical vs pinned MiniLM | Recall@5 **0.9333 vs 1.0000** on 15 authored retrieval cases | MiniLM ranks this tiny fictional corpus better |
+| Real Qwen **Single-Agent** strict baseline | **2/19** positive strict successes; **13/19** generated outputs violated schema | Retrieval alone did not ensure usable generation |
+| Original real-Qwen **paired Critic** | **0/19** strict successes for both 0- and 1-revision policies; revision cost **16 extra Qwen calls** | Bounded retry did not improve this strict-policy evaluation |
+| Output-format **offline replay** | **2/19 → 12/19** positive author-label successes, **0 new model calls** | Format normalization, **not** new inference or factual checking |
+| Real-Qwen **evidence preflight** | Logical calls **19 → 10** while 9 positive requests abstained; matched normalized positive successes **4/19** | Reduces required calls under the preflight policy but not positive success; matched physical calls were shared in the experiment |
+| **Typed source** rule audit | **22/22** agreement with authors' engineered typed labels; naive citation-only **8/22** | Deterministic fixture/contract check, **not** human-validated semantics |
+| Separate real Qwen **atomic-claim Critic** | **3/26** strict JSON labels valid; **0/26** matched authored labels | Small-model factual classification failed |
+| Real Qwen **label constraint** study | Improved prompt **26/26 valid labels**, **8/26** author matches; true token mask changed **0** predictions | Structurally valid output still did not imply correct source judgment |
+| **Gradio E2E** and real-model smoke | **6/6 scripted** edge cases, **179 tests** in optional runtime job, **1 real Qwen call** structurally approved | Verified runnable UI, orchestration and one real positive-control integration |
 
-## Reproduce lightweight tests
+**Comparison caution:** Single-Agent (2/19) and the paired Critic (0/19) apply **different acceptance gates**; those numbers do **not** prove Multi-Agent is worse or better on factual accuracy. The 2/19 → 12/19 format replay did not generate new answers. The Stage 3.3 call reduction describes **logical calls** per policy, not physical calls saved across a combined shared-output matrix. All claims of semantic citation groundedness, independent human-calibrated accuracy, and real-world unsupported-claim rate remain **unmeasured**.
 
-Requires Python 3.11+.
+Read the [consolidated final evaluation with precise denominators and original GitHub Actions evidence](docs/FINAL_EVALUATION.md), or inspect the [machine-readable experiment source register](data/portfolio/evidence_register.json).
 
-```bash
-python -m pip install -e ".[dev]"
-python -m pytest
-python -m recsys.evaluation.run_retrieval --backend hashing \
-  --output artifacts/evaluation/hashing.json
-```
+## Technology and implementation
 
-## Reproduce actual semantic retrieval
+- **Language and core:** Python 3.11+, Pydantic v2, NumPy, pytest.
+- **Retrieval:** deterministic metadata filtering and lexical hashed embeddings for offline demo; separately evaluated pinned `all-MiniLM-L6-v2` for semantic retrieval benchmarks.
+- **Generation:** optional pinned `Qwen/Qwen2.5-0.5B-Instruct` through Transformers/PyTorch, greedy CPU inference; fixed JSON test doubles for reproducible offline scenarios.
+- **Evidence provenance:** product-linked citations, verbatim source excerpts, effective dates, supersession relationships, explicit typed claims, catalog/source SHA-256 binding.
+- **Verification and control:** bounded revision feedback, hard constraints, evidence preflight, deterministic Critic issue codes and opt-in **format-only** JSON normalization that never changes IDs, claims or citations.
+- **Interface:** Gradio Blocks on localhost with approved final response, retrieval candidates, source issues, citation excerpts, token/call metrics and unverified revision trace.
+- **Evaluation:** pinned model revisions, real GitHub Actions CPU inference runs, raw JSON artifacts, offline replay, label-coverage/latency/call tracking and blank independent-review packets.
 
-```bash
-python -m pip install -e ".[semantic]"
-python -m recsys.evaluation.run_retrieval --backend minilm \
-  --output artifacts/evaluation/minilm.json
-```
-
-The pinned MiniLM evaluation completed successfully on a tiny synthetic suite:
-**Recall@5 = 1.0000**, versus **0.9333** for the lexical baseline. This is
-**not a real-world effectiveness claim**. [Measured results](docs/retrieval_results_20261122.md).
-
-## Run opt-in local Qwen smoke
-
-```bash
-python -m pip install -e ".[semantic,local-llm]"
-python -m recsys.evaluation.run_single_agent \
-  --retrieval-backend minilm \
-  --output artifacts/evaluation/qwen-single-agent.json
-```
-
-This downloads public model weights. A separate GitHub Actions
-`Qwen Single-Agent Smoke` workflow runs the same code on CPU, and captures
-per-case outcomes, tokens, latency, pinned model versions, and failure reasons.
-Real model execution was independently checked in [the recorded Qwen CPU smoke](docs/real_single_agent_qwen_results_20261122.md); the unit tests alone would not establish that.
-
-## Evaluate the 15 + 10 single-agent baseline
-
-The fixed-case experiment separates expected-product retrieval, structurally
-accepted recommendations, hard no-match filtering, citation **field coverage**,
-red-team literal phrase leakage, model failures, latency and token usage.
-**Factual claim support is not automatically graded**; unresolved semantic
-groundedness remains `null` until independently reviewed.
-
-```bash
-python -m pip install -e ".[dev,semantic,local-llm]"
-python -m pytest
-python -m recsys.evaluation.run_baseline_eval \
-  --retrieval-backend minilm --top-k 3 \
-  --output artifacts/evaluation/single-agent-baseline-25.json
-python -m recsys.evaluation.review_queue \
-  --report artifacts/evaluation/single-agent-baseline-25.json \
-  --output artifacts/evaluation/manual-review-queue.csv
-```
-
-See [the frozen evaluation protocol](docs/baseline_evaluation_protocol.md)
-for scoring definitions, [the measured strict 25-case baseline](docs/single_agent_baseline_results_20261122.md),
-and [the format-only reliability ablation](docs/baseline_reliability_ablation_20261122.md).
-The measured normalization improves structural acceptance but **does not independently
-verify factual recommendation claims or establish production accuracy**.
-
-## Bounded Multi-Agent Foundation (Stage 3.0)
-
-The new `recsys.multiagent` module provides:
-- `PreferenceRetrievalAgent` — validated preferences and metadata-safe retrieval.
-- `RecommendationAgent` — one candidate generation per attempt using the
-  original Single-Agent baseline context; structured critic feedback only on revision.
-- `CriticVerificationAgent` — deterministic hard constraints, citation
-  membership, required-attribute field references and selected forbidden-phrase
-  checks. **Not** an independent language-model fact checker.
-- `MultiAgentOrchestrator(max_revisions=0|1)` — no candidate → no calls,
-  otherwise one draft and at most one further attempt; rejected proposals
-  never become user-visible final answers.
-
-Unit tests use fixed JSON generators; the separate Stage 3.1 GitHub Actions
-workflow ran **real pinned Qwen** on the original frozen corpus.
-The paired study shared each first draft across the two arms, and a
-single revision was **not** beneficial under this model, schema and
-evidence configuration: 0/19 positive strict successes for both arms,
-3/19 structurally approved proposals each, and 16 extra Qwen calls with
-one revision. Missing attribute-field evidence and invalid model JSON
-were the main blocks. No real semantic claim-entailment metric was computed.
-Read the [architecture](docs/multiagent_architecture.md), the
-[paired experiment protocol](docs/real_multiagent_qwen_protocol.md), and
-the [actual measured results](docs/real_multiagent_qwen_results_20261122.md).
-
-To reproduce the real CPU evaluation:
-
-```bash
-python -m pip install -e ".[dev,semantic,local-llm]"
-python -m recsys.evaluation.run_multiagent_eval \
-  --catalog data/retrieval_eval/catalog.json \
-  --suite data/baseline_eval/suite.json \
-  --output artifacts/evaluation/multiagent-qwen-paired-25.json
-```
-
-## Stage 3.2 — Separate output reliability and source evidence
-
-Two **opt-in** orchestrator policies preserve the historical strict model
-runs unchanged:
-
-- `format_policy="safe_json_normalization"` only removes whole-response
-  Markdown JSON fences or adds an unambiguous missing boolean. It never
-  edits product IDs, citations, written product reasons, or constraints.
-- `evidence_preflight=True` filters candidates without the required
-  attribute-field citations; when no retrieved candidate has the needed
-  source records it exits with `insufficient_evidence` and zero model calls.
-
-The independently authored **fictional** source-document fixture and
-deterministic audit separately recognize contradictory active passages,
-superseded source declarations, stale product metadata and missing
-field support. It does not verify actual brands or natural-language
-entailment.
-
-A fresh **offline replay of the frozen 19 actual Qwen first drafts** measured
-3 vs 9 Critic approvals and 0 vs 4 strict positive label successes (original
-strict JSON vs safe normalization). Nine earlier requests potentially lacked
-the source fields required by preflight. These are **post-hoc and
-hypothetical**, respectively; no new Qwen calls or real savings were measured.
-See [protocol](docs/stage32_structured_output_and_evidence.md) and
-[recorded results](docs/stage32_recorded_results_20261122.md).
-
-Reproduce the source audit (no model weights):
+### Test and reproduce
 
 ```bash
 python -m pip install -e ".[dev]"
 python -m pytest
-python -m recsys.evaluation.source_audit \
-  --catalog data/source_evidence_demo/catalog.json \
-  --sources data/source_evidence_demo/source_documents.json \
-  --output artifacts/evaluation/stage32-source-audit.json
-```
 
-## Stage 3.3 — Live reliability and conflict-aware checks
+# No model needed: six end-to-end scripted control-flow checks
+python -m recsys.demo.checks \
+  --output artifacts/evaluation/stage40-demo-e2e.json
 
-Stage 3.3 adds an **optional** `TypedSourceGuard` to the existing
-deterministic Critic and field-coverage preflight. It validates typed
-declarations in the separately authored **fictional** source documents,
-detects contradictory active evidence, superseded citations, outdated
-product metadata and missing field declarations, and can prevent a Qwen
-call when required evidence cannot be trusted.
-
-A **completed real pinned-Qwen CPU experiment** compared the unchanged
-frozen 25 synthetic cases with a **2×2 first-pass policy matrix**:
-strict versus safe JSON normalization, and field preflight off versus on.
-The recorded positive successes were **0/19 (strict)** and **4/19
-(normalized)** under both preflight settings. Source preflight reduced
-the arm's logical generation calls **from 19 to 10** by rejecting nine
-cases with unavailable field evidence; it did **not** add successes.
-Identical first prompts shared actual model outputs: the full matrix
-made 19 **physical** Qwen calls, plus one new fictional-source smoke
-call. No revision loop was included.
-
-The guard only establishes consistency of typed source assertions and
-citation provenance, **not** whether arbitrary natural-language reasons
-are entailed by documents. See [the Stage 3.3 experiment protocol](docs/stage33_live_reliability_protocol.md)
-and [measured real Qwen results](docs/stage33_real_qwen_results_20261122.md).
-
-## Stage 3.4 — Atomic claim evidence evaluation
-
-To avoid conflating valid citation IDs with factual entailment, this
-stage provides a **separately frozen author-labeled** atomic-claim
-benchmark over 7 **fictional** source documents. For 22 already
-structured product-field assertions, the deterministic source guard
-classifies evidence as Supported, Contradicted, Unsupported or
-Ambiguous; another four free-text claims **abstain for blind human
-review**. Author-label agreement on the engineered typed fixture was
-22/22, versus 8/22 for a naive citation-ID-only control. These figures
-are **not model accuracy**: no real Qwen output was newly labeled,
-no semantic extraction was evaluated, and no independent annotator has
-reviewed the cases. A 26-row blind-review CSV was generated with cited
-excerpts but without the author's gold labels.
-
-Separately, the original **real Qwen** Stage 3.3 output artifact was read
-without any new generation. A second blinded review CSV now contains **15
-actual model recommendation reasons from 9 previously approved cases**,
-plus their source excerpts. These are complete reasons, **not 15 labeled
-atomic claims**: all per-claim extraction/reviewer fields remain blank,
-and the model's factual groundedness is **still unmeasured**.
-
-See the [Stage 3.4 evaluation protocol and real offline results](
-docs/stage34_atomic_claim_grounding_20261122.md).
-
-```bash
-python -m pip install -e ".[dev]"
-python -m pytest
-python -m recsys.evaluation.atomic_claims \
-  --output artifacts/evaluation/stage34-atomic-claims.json \
-  --blind-review-csv artifacts/evaluation/stage34-blind-review.csv
-```
-
-## Stage 3.5 — Separate model-based claim Critic
-
-A real pinned local **Qwen2.5-0.5B-Instruct** is asked to classify the
-**26 fixed synthetic atomic claims**, using complete fictional primary
-source passages and citation metadata. The labels are Supported,
-Contradicted, Unsupported and Ambiguous; invalid model answers are
-recorded as requiring review rather than silently being fixed.
-Author-written gold labels are used **only after inference**.
-The **actual CPU experiment ran all 26 calls** and yielded 3 valid
-four-class outputs and **0 author-label agreements**; the model tended
-to produce `ambiguity` or `ambiguously` rather than the required
-`ambiguous`. A separate no-LLM audit verified **23 JSON-decodable
-responses, 20 of which used invalid class vocabulary**, plus three
-JSON-syntax errors. Nothing was silently repaired.
-This model is **not** yet integrated as an automatic semantic gate
-for all recommendation prose, and claim segmentation is not automatic.
-
-Two blank, independent human-review packets are also produced. The
-reviewing workflow checks completeness, source hashes, separate
-reviewer IDs and inter-reviewer agreement, but **no human ratings
-have been received**. Human-calibrated accuracy and actual real-Qwen
-recommendation groundedness therefore remain **unmeasured**.
-
-See the [Stage 3.5 protocol](docs/stage35_model_critic_protocol.md)
-and [measured negative-result report](docs/stage35_real_qwen_critic_results_20261122.md).
-
-```bash
+# Optional real model smoke (downloads pinned public Qwen weights)
 python -m pip install -e ".[dev,local-llm]"
-python -m pytest
-python -m recsys.evaluation.run_model_critic \
-  --output artifacts/evaluation/stage35-real-qwen-critic.json
-python -m recsys.evaluation.human_calibration \
-  --packet-dir artifacts/evaluation/stage35-blind-review
+python -m recsys.demo.checks --real-qwen-smoke \
+  --output artifacts/evaluation/stage40-real-qwen-smoke.json
 ```
 
-## Stage 3.6 — Prompt reliability and true token-constrained labels
+The main CI runs offline tests **and all six scripted E2E smoke scenarios without model weights**. Independent opt-in workflows preserved the actual Qwen/Gradio experiment outputs and evidence, including [the Stage 4.0 recorded CI and real-model smoke](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45063616834).
 
-This stage introduces a **separate experimental classifier** over the same
-26 author-labeled fictional atomic claims, without modifying the Stage 3.5
-negative result. Three real-model variants are compared:
+## Project status, limitations and interview narrative
 
-1. A brief **label-only** instruction, no decoding constraints.
-2. A clearer evidence-decision **label-only** instruction, no constraints.
-3. The **identical** second instruction with `prefix_allowed_tokens_fn`
-   restricting generated tokens to exactly four canonical labels plus EOS.
+**Portfolio demo complete:** a working local interactive application, reproducible source-control edge cases, a pinned real-model integration, defensive evidence checks, and honest experimental reports. **Not completed:** real product integration, hosted authentication/deployment, independent human semantic-claim adjudication, broad end-to-end accuracy validation or robust LLM factual verification.
 
-The third variant genuinely restricts Qwen's **next-token choices**.
-It is not JSON-schema-constrained rationale generation, synonym mapping,
-or post-hoc error repair. All three output **labels only**, unlike Stage
-3.5's historical JSON-with-rationale contract, so cross-stage changes
-cannot be attributed to prompt wording alone.
+The most important lesson: **a valid schema or linked citation is not a guarantee of factual support**, and **a model retry cannot create missing evidence**. The runtime uses the reliable typed deterministic source guard as the hard approval authority, while keeping the separate experimental LLM Critic's negative results visible.
 
-The **completed real 78-call CPU experiment** found **18/26 valid
-labels and 7/26 author-label matches** with the brief prompt,
-versus **26/26 valid labels and 8/26 matches** with the improved
-decision prompt. With the exact same improved prompt, the true token
-constraint returned **identical predictions on all 26 cases**:
-26/26 valid labels, still only 8/26 author-label matches. Both improved
-arms predicted `ambiguous` **zero times**, despite six ambiguous
-reference cases. More reliable formatting therefore **did not make
-this a trustworthy semantic evidence Critic**.
+[Recruiter walkthrough](docs/RECRUITER_DEMO.md) · [Full evaluation](docs/FINAL_EVALUATION.md) · [Architecture](docs/SYSTEM_ARCHITECTURE.md) · [Project closeout](docs/PROJECT_CLOSEOUT.md) · [Local demo manual](docs/stage40_interactive_demo.md) · [Original experiment provenance](docs/PROVENANCE.md)
 
-Per-case raw outputs, actual model calls, tokens, latency and confusions
-are preserved. These are **exploratory same-fixture author-label results**,
-not human-calibrated factual accuracy. See [the experiment protocol](
-docs/stage36_constrained_label_protocol.md) and [the measured negative
-semantic result](docs/stage36_real_qwen_results_20261122.md).
+### Independent implementation
 
-```bash
-python -m pip install -e ".[dev,local-llm]"
-python -m pytest
-python -m recsys.evaluation.run_label_ablation \
-  --output artifacts/evaluation/stage36-real-qwen-label-ablation.json
-```
-
-## Design priorities
-
-- **Evidence and provenance:** catalog SHA-256, explicit source references,
-  and deterministic input/output contracts.
-- **Fail closed:** missing metadata and hallucinated IDs are rejected rather
-  than silently accepted.
-- **Controlled ablations:** retrieval, generator, test set, and grading must
-  stay matched across architectures.
-- **Reproducibility:** recorded CI logs and raw experiment artifacts;
-  no invented model metrics.
-
-## Documentation
-
-- [Catalog retrieval](docs/retrieval.md)
-- [Semantic retrieval protocol](docs/semantic_retrieval_evaluation.md)
-- [Recorded MiniLM results](docs/retrieval_results_20261122.md)
-- [Single-agent baseline](docs/single_agent_baseline.md)
-- [Real Qwen smoke protocol](docs/real_single_agent_qwen_smoke.md)
-- [Recorded real Qwen results](docs/real_single_agent_qwen_results_20261122.md)
-- [Single-agent 15+10 evaluation protocol](docs/baseline_evaluation_protocol.md)
-- [Measured 25-case Single-Agent results](docs/single_agent_baseline_results_20261122.md)
-- [Stage 2.3 format-only replay and synthetic evidence coverage results](docs/baseline_reliability_ablation_20261122.md)
-- [Stage 3.0 bounded three-role architecture](docs/multiagent_architecture.md)
-- [Real paired Qwen Multi-Agent experiment protocol](docs/real_multiagent_qwen_protocol.md)
-- [Measured Stage 3.1 real Qwen paired results](docs/real_multiagent_qwen_results_20261122.md)
-- [Stage 3.2 output/evidence protocol](docs/stage32_structured_output_and_evidence.md)
-- [Recorded Stage 3.2 replay and fictional source-audit results](docs/stage32_recorded_results_20261122.md)
-- [Stage 3.3 live reliability and conflict-aware source guard protocol](docs/stage33_live_reliability_protocol.md)
-- [Measured Stage 3.3 real Qwen reliability and source-guard results](docs/stage33_real_qwen_results_20261122.md)
-- [Stage 3.4 authored atomic-claim audit and blind human-review protocol](docs/stage34_atomic_claim_grounding_20261122.md)
-- [Stage 3.5 real Qwen atomic Critic and independent human-review protocol](docs/stage35_model_critic_protocol.md)
-- [Measured Stage 3.5 real Qwen 0/26 failure analysis](docs/stage35_real_qwen_critic_results_20261122.md)
-- [Stage 3.6 prompt and true token-label constraint evaluation protocol](docs/stage36_constrained_label_protocol.md)
-- [Measured Stage 3.6 78-call Qwen prompt and label-decoding outcomes](docs/stage36_real_qwen_results_20261122.md)
-- [Stage 4.0 interactive Gradio demo, architecture and reproducible walkthrough](docs/stage40_interactive_demo.md)
-- [Stage 4.0 verified Gradio, six-script E2E and one-real-Qwen smoke results](docs/stage40_e2e_results_20261122.md)
-- [Provenance and reuse](docs/PROVENANCE.md)
-
-## Provenance
-
-Inspired by SJSU DATA 298A Team 5 Topic 22's evidence-grounded recommender
-research direction. The implementation in this repository is independent:
-no team code, restricted dataset, or pretrained team checkpoints were copied.
-All included catalog entries are fictional and for development/evaluation.
+This is an **independent portfolio implementation** inspired by the SJSU DATA 298A Team 5 Topic 22 research direction; no team-owned code/data/checkpoints were copied into this repository. See [provenance and reuse policy](docs/PROVENANCE.md). The synthetic product examples are demonstrations and do **not** substantiate real skincare or medical efficacy claims.

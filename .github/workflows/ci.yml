@@ -22,3 +22,14 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Run tests
         run: python -m pytest
+      - name: Verify six scripted demo end-to-end paths (no model download)
+        run: |
+          python -m recsys.demo.checks \
+            --output artifacts/evaluation/stage40-demo-e2e.json
+      - name: Preserve offline scripted E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-scripted-demo-smoke
+          path: artifacts/evaluation/stage40-demo-e2e.json
+          if-no-files-found: warn

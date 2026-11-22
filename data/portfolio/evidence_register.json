@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "registry_title": "Portfolio evidence register (frozen recorded stage results)",
+  "evidence_date": "2026-11-22",
+  "repository": "Ashley96yy/multi-agent-recommendation-system",
+  "record_type": "curated_index_of_existing_immutable_experiments",
+  "new_model_experiments_in_closeout": 0,
+  "metric_scope": "All case outcomes are fictional/author-labeled or scripted. No independent human adjudication; no reported real-world groundedness, real-dollar cost, or production recommendation accuracy.",
+  "independent_human_groundedness": null,
+  "real_world_unsupported_claim_rate": null,
+  "records": [
+    {
+      "study_id": "stage1_retrieval",
+      "title": "Frozen retrieval baseline",
+      "evidence_type": "real_minilm_vs_lexical_on_fictional_suite",
+      "cohort": "15 synthetic labeled retrieval cases; recall@5",
+      "metrics": {
+        "minilm_recall_at_5": "1.0000",
+        "lexical_recall_at_5": "0.9333"
+      },
+      "source_doc": "docs/retrieval_results_20261122.md",
+      "run_url": null,
+      "valid_interpretation": "Small synthetic semantic retrieval comparison; cannot establish real-world recall"
+    },
+    {
+      "study_id": "stage22_single_agent",
+      "title": "Strict Single-Agent real-Qwen benchmark",
+      "evidence_type": "real_qwen_cpu",
+      "cohort": "15 normal + 10 red-team author-labeled synthetic requests (19 positive / 6 impossible)",
+      "metrics": {
+        "positive_strict_success": "2/19",
+        "normal_success": "2/15",
+        "red_team_expected_outcome_success": "6/10",
+        "retrieval_hit_at_3": "19/19",
+        "invalid_generation": "13/19",
+        "real_model_calls": 19
+      },
+      "source_doc": "docs/single_agent_baseline_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45050806308",
+      "valid_interpretation": "Original strict format baseline, no independent claim-groundedness score"
+    },
+    {
+      "study_id": "stage23_format_replay",
+      "title": "Offline deterministic format recovery",
+      "evidence_type": "offline_replay_no_new_llm",
+      "cohort": "Same 19 saved real Qwen responses and six no-match synthetic cases",
+      "metrics": {
+        "strict_positive_success": "2/19",
+        "normalized_positive_success": "12/19",
+        "accepted_generated_before": "6/19",
+        "accepted_generated_after": "19/19",
+        "new_llm_calls": 0
+      },
+      "source_doc": "docs/baseline_reliability_ablation_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45052268027",
+      "valid_interpretation": "Mechanically normalizes output syntax; improves structural/relevance author-label evaluation, NOT semantic support"
+    },
+    {
+      "study_id": "stage31_paired_multiagent",
+      "title": "Real-Qwen paired deterministic Critic and revision",
+      "evidence_type": "real_qwen_cpu_paired_shared_first_drafts",
+      "cohort": "Same frozen 25 author-labeled synthetic cases; first draft shared across 0 vs 1 revision",
+      "metrics": {
+        "strict_positive_success_no_revision": "0/19",
+        "strict_positive_success_one_revision": "0/19",
+        "approved_proposals_each_arm": "3/19",
+        "first_draft_physical_calls": 19,
+        "additional_revision_physical_calls": 16,
+        "total_physical_calls": 35
+      },
+      "source_doc": "docs/real_multiagent_qwen_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45053525292",
+      "valid_interpretation": "One revision did not improve strict author-label success and added cost; stricter acceptance gate differs from Single-Agent"
+    },
+    {
+      "study_id": "stage33_live_preflight",
+      "title": "Real-Qwen output-format and evidence-preflight 2-by-2",
+      "evidence_type": "real_qwen_cpu_shared_identical_prompts",
+      "cohort": "Same frozen 25 requests; 19 generated first drafts, 6 hard-filter no-match; plus one separate source smoke",
+      "metrics": {
+        "strict_positive_success": "0/19",
+        "normalized_positive_success": "4/19",
+        "logical_calls_without_preflight": 19,
+        "logical_calls_with_preflight": 10,
+        "matrix_physical_calls": 19,
+        "source_smoke_physical_calls": 1
+      },
+      "source_doc": "docs/stage33_real_qwen_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45056291366",
+      "valid_interpretation": "Logical 19-to-10 policy-call difference; physical generation shared across matrix, NOT nine saved billed calls"
+    },
+    {
+      "study_id": "stage34_typed_claims",
+      "title": "Deterministic typed-source atomic-claim audit",
+      "evidence_type": "authored_fictional_fixture_offline",
+      "cohort": "26 author-written claim examples, 22 explicitly typed + 4 open-text deferred for review",
+      "metrics": {
+        "typed_rule_author_agreement": "22/22",
+        "naive_citation_author_agreement": "8/22",
+        "open_text_abstentions": "4/4",
+        "independent_human_reviews": 0
+      },
+      "source_doc": "docs/stage34_atomic_claim_grounding_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059212641",
+      "valid_interpretation": "Engineered author-label contract agreement, NOT general semantic accuracy; 15 original Qwen recommendation reasons exported for blind review but not annotated"
+    },
+    {
+      "study_id": "stage35_model_critic",
+      "title": "Separate real 0.5B-Qwen atomic claim Critic",
+      "evidence_type": "real_qwen_cpu_author_labeled_fictional",
+      "cohort": "Same 26 authored atomic claims; four-class JSON with rationale",
+      "metrics": {
+        "physical_calls": 26,
+        "strict_valid_schema": "3/26",
+        "correct_against_authored_labels": "0/26",
+        "invalid_or_noncompliant": "23/26",
+        "independent_human_reviews": 0
+      },
+      "source_doc": "docs/stage35_real_qwen_critic_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45060484582",
+      "valid_interpretation": "Negative model result, no human-calibrated accuracy"
+    },
+    {
+      "study_id": "stage36_constraint_ablation",
+      "title": "Real-Qwen label-only prompt and token constraint experiment",
+      "evidence_type": "real_qwen_cpu_exploratory_same_fixture",
+      "cohort": "Three independent arms x 26 fictional author-labeled claims; new bare-label contract",
+      "metrics": {
+        "physical_calls": 78,
+        "brief_prompt_valid_labels": "18/26",
+        "brief_prompt_author_agreement": "7/26",
+        "decision_prompt_valid_labels": "26/26",
+        "decision_prompt_author_agreement": "8/26",
+        "constrained_label_valid": "26/26",
+        "constrained_label_author_agreement": "8/26",
+        "constrained_prediction_changes": 0
+      },
+      "source_doc": "docs/stage36_real_qwen_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45062087041",
+      "valid_interpretation": "Token constraint ensures canonical labels but did not improve semantic classification; label-only differs from prior JSON+rationale contract"
+    },
+    {
+      "study_id": "stage40_interactive_demo",
+      "title": "Local Gradio end-to-end app and one real Qwen smoke",
+      "evidence_type": "real_qwen_one_call_plus_scripted_e2e",
+      "cohort": "Six PREWRITTEN fictional walkthrough scenarios plus one independent real-Qwen positive-control generation",
+      "metrics": {
+        "scripted_scenarios_passed": "6/6",
+        "gradio_components": 52,
+        "bound_callbacks": 3,
+        "tests_in_optional_e2e_job": 179,
+        "real_smoke_physical_calls": 1,
+        "real_smoke_structural_status": "approved"
+      },
+      "source_doc": "docs/stage40_e2e_results_20261122.md",
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45063616834",
+      "valid_interpretation": "UI assembly and real Qwen control-flow smoke verified, NOT live hosted deployment or semantic entailment"
+    }
+  ]
+}
