@@ -129,6 +129,65 @@ class TypedSourceGuard:
                 ))
         return findings
 
+    def classify_annotated_claim(
+        self, *, product_id: str, field: str,
+        asserted_value: bool | str, evidence_ids: set[str],
+    ) -> tuple[str, str]:
+        """Classify only an EXPLICIT typed atomic claim against the active sources.
+
+        These rules apply to a manually/externally extracted field assertion.
+        They do NOT extract facts from prose or prove open-text entailment.
+        Labels are deliberately distinct: a clear active opposite is
+        contradicted, conflicting active sources are ambiguous, missing or
+        invalid citations to an otherwise consistent value are unsupported.
+        """
+        product = self._products.get(product_id)
+        if product is None:
+            return "unsupported", "unknown_product"
+        if field.startswith("attributes."):
+            key = field[len("attributes."):]
+            if key not in product.attributes or type(asserted_value) is not bool:
+                return "unsupported", "invalid_typed_attribute"
+        elif field == "price_usd":
+            from decimal import Decimal, InvalidOperation
+            if type(asserted_value) is not str:
+                return "unsupported", "invalid_typed_price"
+            try:
+                value = Decimal(asserted_value)
+            except InvalidOperation:
+                return "unsupported", "invalid_typed_price"
+            if not value.is_finite() or value < 0:
+                return "unsupported", "invalid_typed_price"
+        else:
+            return "unsupported", "field_outside_typed_scope"
+
+        active = self._active_claims.get((product_id, field), [])
+        if not active:
+            return "unsupported", "no_active_source_assertion"
+
+        def comparable(v):
+            return Decimal(v) if field == "price_usd" else v
+
+        values = {comparable(v) for _, v in active}
+        if len(values) != 1:
+            return "ambiguous", "active_sources_disagree"
+        if comparable(asserted_value) not in values:
+            return "contradicted", "active_sources_assert_opposite"
+        if not evidence_ids:
+            return "unsupported", "claim_has_no_citation"
+        active_source_ids = {source_id for source_id, _ in active}
+        for eid in evidence_ids:
+            evidence = self._evidence.get(eid)
+            if evidence is None:
+                return "unsupported", "unknown_citation_id"
+            if evidence.product_id != product_id:
+                return "unsupported", "citation_other_product"
+            if evidence.supported_field != field:
+                return "unsupported", "citation_wrong_field"
+            if evidence.source_id not in active_source_ids:
+                return "unsupported", "citation_not_active"
+        return "supported", "active_value_and_all_citations_match"
+
     def verify_typed_claim(
         self, *,
         product_id: str, field: str, asserted_value: bool | str,
