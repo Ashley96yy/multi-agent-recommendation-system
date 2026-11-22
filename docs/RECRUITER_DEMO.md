@@ -69,7 +69,7 @@ The strongest technical evidence is *system behavior and failure analysis*: on t
 
 1. [README](../README.md) — concise what/why, quickstart and outcome snapshot.
 2. [System architecture](SYSTEM_ARCHITECTURE.md) — real deterministic/model boundary and the fail-closed path.
-3. [Final evaluation](FINAL_EVALUATION.md) — every recorded experiment, denominators, caveats and primary run links.
+3. [Final evaluation](FINAL_EVALUATION.md) — nine selected experiments with denominators, caveats and primary run links.
 4. [Interactive demo implementation](../src/recsys/demo/app.py) and [walkthrough fixture](../data/demo/walkthroughs.json) — actual runnable interface and expected edge cases.
 5. [Stage 4.0 real Qwen and Gradio CI run](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45063616834) — 179 passed in the optional full-runtime job, six scripted E2E cases and one real-Qwen model call.
 

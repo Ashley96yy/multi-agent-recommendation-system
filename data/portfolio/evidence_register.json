@@ -19,7 +19,7 @@
         "lexical_recall_at_5": "0.9333"
       },
       "source_doc": "docs/retrieval_results_20261122.md",
-      "run_url": null,
+      "run_url": "https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45048522798",
       "valid_interpretation": "Small synthetic semantic retrieval comparison; cannot establish real-world recall"
     },
     {

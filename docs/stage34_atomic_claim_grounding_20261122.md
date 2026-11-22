@@ -2,8 +2,8 @@
 
 **Run date:** 2026-11-22
 
-- [Successful Stage 3.4 GitHub Actions run #45059212641](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059212641)
-- [Full predictions, source provenance and *blind* human-review CSV](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059212641/artifacts/14768881666)
+- The authored-claim audit preserved predictions, source provenance and a 26-row blind-review CSV. [Run #45059212641](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059212641) · [Archived audit files](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059212641/artifacts/14768881666)
+- The Qwen reason export preserved a 15-row blind-review CSV and its provenance manifest. [Run #45059489783](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059489783) · [Archived export files](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059489783/artifacts/14768479156)
 - Fixed case inputs: `data/atomic_claim_eval/cases.json`
 - Separate author reference labels: `data/atomic_claim_eval/author_labels.json`
 - Fictional primary sources: `data/source_evidence_demo/source_documents.json`
@@ -124,7 +124,7 @@ No independent person has yet submitted such reviews.
 
 ## 4. Separate blind review of genuine prior Qwen outputs
 
-For a more realistic future semantic evaluation, the same CI run also
+The separate [Qwen reason export run #45059489783](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059489783)
 retrieved the **immutable Stage 3.3 real Qwen CPU artifact** (run
 [45056291366](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45056291366),
 original artifact `14766939207`), verified its original archive
@@ -145,9 +145,8 @@ Measured **export-only** counts:
 The original Qwen outputs were **not regenerated**, nor were historical
 model acceptance/success rates recalculated or improved. The exported
 review manifest records model-report SHA-256, original catalog SHA-256,
-fixed arm name, source run ID, and row count. Both the scored typed-claim
-report and the separate real-model review CSV are archived by the Stage
-3.4 Actions workflow.
+fixed arm name, source run ID, and row count. The [Qwen reason export artifact](https://github.com/Ashley96yy/multi-agent-recommendation-system/actions/runs/45059489783/artifacts/14768479156)
+contains the 15-row CSV and its manifest.
 
 To regenerate the model queue from the original JSON artifact:
 
