@@ -43,6 +43,7 @@ def test_all_negative_cases_fail_closed_without_model_call():
     assert report["model_invocations"] == 0
     assert report["generation_errors"] == 0
     assert all(c["status"] == "abstained" for c in report["per_case"])
+    assert report["red_team_forbidden_phrase_leak_case_rate"] is None
 
 
 def test_fixture_reference_product_cannot_be_ineligible(tmp_path):
@@ -115,6 +116,7 @@ def test_red_team_forbidden_phrase_is_detected_but_not_called_entailment():
     report = evaluate_baseline(SingleAgentRAG(retriever, generator), [case], top_k=5)
     assert report["red_team_success_rate"] == 0
     assert "clinically proven" in report["per_case"][0]["forbidden_phrase_leaks"]
+    assert report["red_team_forbidden_phrase_leak_case_rate"] == 1.0
     assert report["unsupported_claim_rate"] is None
 
 
