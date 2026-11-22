@@ -1,0 +1,69 @@
+name: Stage 3.5 Frozen Critic Failure Analysis (No LLM)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/model-critic-atomic-eval
+    paths:
+      - '.github/workflows/stage35-critic-failure-audit.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  audit-recorded-real-model:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install offline tests and schema dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Test strict output and failure audit
+        run: python -m pytest
+      - name: Recover exact original real-Qwen run (no new model inference)
+        run: |
+          mkdir -p artifacts/evaluation
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/14768979481/zip" > artifacts/evaluation/stage35-original.zip
+          echo "3d0e1c910f35bb7de5a3333c8f94adbf3b7e882a9a8c39d9293ffb54032fa414  artifacts/evaluation/stage35-original.zip" | sha256sum --check
+          unzip -p artifacts/evaluation/stage35-original.zip stage35-real-qwen-critic.json > artifacts/evaluation/stage35-original.json
+      - name: Separate JSON syntax failure from invalid class vocabulary
+        run: |
+          python -m recsys.evaluation.audit_model_critic_outputs \
+            --report artifacts/evaluation/stage35-original.json \
+            --output artifacts/evaluation/stage35-model-format-failure-audit.json
+      - name: Validate original 26 calls without relabeling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("artifacts/evaluation/stage35-model-format-failure-audit.json").read_text())
+          assert x["real_model_invocations"] == 26
+          assert x["raw_json_parseable_count"] == 23
+          assert x["raw_json_invalid_count"] == 3
+          assert x["strict_schema_compliant_count"] == 3
+          assert x["parseable_but_invalid_schema_count"] == 20
+          assert x["raw_label_prefix_counts_not_predictions"] == {
+            "ambiguity": 20, "ambiguously": 3, "ambiguous": 3,
+          }
+          assert x["author_label_correct_including_abstentions"] == 0
+          assert x["repaired_output_count"] == 0
+          assert x["additional_llm_calls"] == 0
+          assert len(x["per_case"]) == 26
+          print("Validated complete negative result; no silent synonym repair.")
+          PY
+      - name: Preserve diagnostic breakdown of original model outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage35-original-critic-failure-audit
+          path: artifacts/evaluation/stage35-model-format-failure-audit.json
+          if-no-files-found: warn
