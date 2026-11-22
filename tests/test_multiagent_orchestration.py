@@ -193,3 +193,24 @@ def test_stage_3_does_not_mutate_single_agent_baseline_or_catalog():
     catalog = json.loads(CATALOG.read_text())
     assert len(catalog["products"]) == 3
     assert len(catalog["evidence"]) == 3
+
+
+def test_generator_transport_failure_is_bounded_and_fail_closed():
+    class BrokenGenerator:
+        def __init__(self):
+            self.call_count = 0
+
+        def generate(self, instructions, context):
+            self.call_count += 1
+            raise ConnectionError("injected transport failure")
+
+    generator = BrokenGenerator()
+    result = workflow(generator).run(prefs())
+    assert result.status == "rejected"
+    assert result.answer is None
+    assert result.generator_calls == 2
+    assert generator.call_count == 2
+    assert all(
+        attempt.verdict.issues[0].code == "invalid_generation"
+        for attempt in result.attempts
+    )
