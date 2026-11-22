@@ -41,6 +41,7 @@ and fixed scenarios using three controlled configurations:
 | Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
 | Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
 | Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
+| Stage 3.3 runtime source guard | Implemented and unit-tested | Opt-in active-source conflict, supersession, missing claim, stale metadata and explicit typed claim checks; not a language entailment model |
 | Recorded Stage 3.2 output replay | Measured offline | Original 19 real Qwen first drafts: strict 3 approved / 0 label successes; normalized 9 approved / 4 label successes; zero new Qwen calls |
 | Three-role orchestration and critic / revision | Real Qwen integration measured | Shared first draft, 19 initial Qwen calls + 16 real revisions; neither arm achieved a strict positive success on 19 synthetic positives |
 | Full model comparison and deployment | Not implemented | Await broader verified evaluation |
@@ -179,6 +180,27 @@ python -m recsys.evaluation.source_audit \
   --output artifacts/evaluation/stage32-source-audit.json
 ```
 
+## Stage 3.3 — Live reliability and conflict-aware checks
+
+Stage 3.3 adds an **optional** `TypedSourceGuard` to the existing
+deterministic Critic and field-coverage preflight. It validates typed
+declarations in the separately authored **fictional** source documents,
+detects contradictory active evidence, superseded citations, outdated
+product metadata and missing field declarations, and can prevent a Qwen
+call when required evidence cannot be trusted.
+
+A standalone pinned-Qwen CPU experiment compares the same frozen 25
+synthetic cases with a **2×2 first-pass policy matrix**: strict versus
+safe JSON normalization, and field preflight off versus on. Identical
+first prompts share actual generated model outputs to avoid
+double-counting physical calls. No revision loop is included in this
+factor-isolation experiment.
+
+The guard only establishes consistency of typed source assertions and
+citation provenance, **not** whether arbitrary natural-language reasons
+are entailed by documents. See [the Stage 3.3 experiment protocol](
+docs/stage33_live_reliability_protocol.md).
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -206,6 +228,7 @@ python -m recsys.evaluation.source_audit \
 - [Measured Stage 3.1 real Qwen paired results](docs/real_multiagent_qwen_results_20261122.md)
 - [Stage 3.2 output/evidence protocol](docs/stage32_structured_output_and_evidence.md)
 - [Recorded Stage 3.2 replay and fictional source-audit results](docs/stage32_recorded_results_20261122.md)
+- [Stage 3.3 live reliability and conflict-aware source guard protocol](docs/stage33_live_reliability_protocol.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
