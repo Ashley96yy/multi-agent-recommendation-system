@@ -1,23 +1,101 @@
 # Evidence-Grounded Multi-Agent Recommendation System
 
-Independent AI Engineering portfolio project focused on retrieval-grounded product recommendations, constraint verification, bounded revision, and reproducible evaluation.
+Independent **Applied AI / AI Engineering** portfolio project focused on reliable,
+source-grounded product recommendation and a controlled comparison of
+**Single-Agent RAG** against a **three-agent verification workflow**.
 
-## Status
-
-Repository initialized. The implementation has not started, and no model or evaluation results are claimed.
-
-## Planned workflow
-
-User request → Preference & Retrieval → Recommendation → Critic & Verification → at most one revision → final recommendation or a no-suitable-match result.
+> **Current state:** Retrieval and one-pass Single-Agent RAG are implemented.
+> The three-agent workflow, critic, revision loop, and controlled multi-agent
+> comparison are **planned**, not yet implemented. Real Qwen inference has an
+> opt-in dedicated CI experiment; consult its recorded run before claiming
+> model success.
 
 ## Research question
 
-Does multi-agent verification improve recommendation quality and reduce unsupported claims compared with single-agent RAG, and is the improvement worth the additional latency and cost?
+**Does multi-agent verification reduce unsupported product claims and improve
+constraint satisfaction enough to justify its additional latency and tokens?**
+
+The project will eventually compare the same pinned model, retrieval evidence,
+and fixed scenarios using three controlled configurations:
+
+1. Single-Agent RAG (implemented as a structural baseline).
+2. Multi-Agent without revision (planned).
+3. Multi-Agent with one bounded revision (planned).
+
+## Implemented components
+
+| Component | Status | Notes |
+| --- | --- | --- |
+| Strict data contracts | Complete | Pydantic; synthetic products, preferences, linked evidence |
+| Metadata-safe catalog filtering | Complete | Exclusions, category, budget and required attributes |
+| Vector retrieval | Complete | Offline lexical baseline + optional pinned MiniLM |
+| Retrieval evaluation | Complete | 15 fictional cases, 3 negative cases, Recall/MRR/NDCG |
+| One-pass Single-Agent RAG | Complete | Retrieved evidence, JSON output, strict candidate/citation ID checks |
+| Local Qwen model adapter | Experimental | Pinned public 0.5B model, CPU runner, real-run artifact required |
+| Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
+| Multi-agent critic / revision | Not implemented | No quality improvement claim |
+| Full model comparison and deployment | Not implemented | Await broader verified evaluation |
+
+## Reproduce lightweight tests
+
+Requires Python 3.11+.
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+python -m recsys.evaluation.run_retrieval --backend hashing \
+  --output artifacts/evaluation/hashing.json
+```
+
+## Reproduce actual semantic retrieval
+
+```bash
+python -m pip install -e ".[semantic]"
+python -m recsys.evaluation.run_retrieval --backend minilm \
+  --output artifacts/evaluation/minilm.json
+```
+
+The pinned MiniLM evaluation completed successfully on a tiny synthetic suite:
+**Recall@5 = 1.0000**, versus **0.9333** for the lexical baseline. This is
+**not a real-world effectiveness claim**. [Measured results](docs/retrieval_results_20261122.md).
+
+## Run opt-in local Qwen smoke
+
+```bash
+python -m pip install -e ".[semantic,local-llm]"
+python -m recsys.evaluation.run_single_agent \
+  --retrieval-backend minilm \
+  --output artifacts/evaluation/qwen-single-agent.json
+```
+
+This downloads public model weights. A separate GitHub Actions
+`Qwen Single-Agent Smoke` workflow runs the same code on CPU, and captures
+per-case outcomes, tokens, latency, pinned model versions, and failure reasons.
+Do not interpret successful unit tests as evidence of real LLM execution.
+
+## Design priorities
+
+- **Evidence and provenance:** catalog SHA-256, explicit source references,
+  and deterministic input/output contracts.
+- **Fail closed:** missing metadata and hallucinated IDs are rejected rather
+  than silently accepted.
+- **Controlled ablations:** retrieval, generator, test set, and grading must
+  stay matched across architectures.
+- **Reproducibility:** recorded CI logs and raw experiment artifacts;
+  no invented model metrics.
+
+## Documentation
+
+- [Catalog retrieval](docs/retrieval.md)
+- [Semantic retrieval protocol](docs/semantic_retrieval_evaluation.md)
+- [Recorded MiniLM results](docs/retrieval_results_20261122.md)
+- [Single-agent baseline](docs/single_agent_baseline.md)
+- [Real Qwen smoke protocol](docs/real_single_agent_qwen_smoke.md)
+- [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
 
-Inspired by the DATA 298A Team 5 Topic 22 research direction. The individual implementation will be developed separately from the team repository. No team code or data has been copied here.
-
-## Development approach
-
-Develop one module at a time, with tests and recorded evidence. Start with the project foundation and a single-agent baseline before introducing the full multi-agent workflow.
+Inspired by SJSU DATA 298A Team 5 Topic 22's evidence-grounded recommender
+research direction. The implementation in this repository is independent:
+no team code, restricted dataset, or pretrained team checkpoints were copied.
+All included catalog entries are fictional and for development/evaluation.
