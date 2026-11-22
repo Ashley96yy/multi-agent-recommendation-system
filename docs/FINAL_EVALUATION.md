@@ -66,6 +66,8 @@ Some historical artifact downloads are subject to GitHub Actions retention. Sour
 
 ## Explicitly not established
 
+**Real-world unsupported-claim rate, independent human-calibrated semantic accuracy, and production recommendation accuracy are unmeasured.** No zero or perfect values are imputed for these missing quantities.
+
 - Independent human-labeled semantic citation entailment, real-model unsupported-claim rate, arbitrary free-text atomic-claim extraction or completed independent reviewer consensus. The human-review CSVs and two-reviewer protocol exist; **zero independent judgments** are reported.
 - Factual truth or safety of *real* skincare products; all products and passages in these experiments are fictional.
 - General recommendation performance or statistically representative improvements across actual consumers.
