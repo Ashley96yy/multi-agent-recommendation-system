@@ -38,7 +38,8 @@ and fixed scenarios using three controlled configurations:
 | Format-only replay ablation | Measured | Same frozen Qwen outputs: strict 2/19 vs normalized 12/19 positive successes; no new model calls |
 | Synthetic attribute provenance | Measured | 29/29 metadata-derived field references versus 0/29 before; NOT independent evidence |
 | Evidence review export | Implemented | Source-backed CSV review queue, with human claim labels deliberately blank |
-| Evidence entailment verification | Not implemented | Citation IDs alone do not prove claim support |
+| Typed atomic claim evaluation | Measured on fictional authored labels | 26 cases: 22 typed supported/contradicted/unsupported/ambiguous, 4 open-text human-review abstentions; 22/22 typed fixture agreement, not real semantic accuracy |
+| Open-text entailment and independent review | Not yet measured | Author reference labels available; blind 26-row review queue exported; free-text claims never auto-graded |
 | Stage 3.2 opt-in output and evidence preflight | Tested | Strict remains default; safe JSON normalization, field-level citation preflight, zero-call insufficient-evidence path |
 | Source document contradiction audit | Tested with fictional documents | 7 invented passages and 12 source claims; 1 active conflict, 1 stale revision, 1 missing field; NOT a general semantic verifier |
 | Stage 3.3 runtime source guard | Implemented and unit-tested | Opt-in active-source conflict, supersession, missing claim, stale metadata and explicit typed claim checks; not a language entailment model |
@@ -205,6 +206,32 @@ citation provenance, **not** whether arbitrary natural-language reasons
 are entailed by documents. See [the Stage 3.3 experiment protocol](docs/stage33_live_reliability_protocol.md)
 and [measured real Qwen results](docs/stage33_real_qwen_results_20261122.md).
 
+## Stage 3.4 — Atomic claim evidence evaluation
+
+To avoid conflating valid citation IDs with factual entailment, this
+stage provides a **separately frozen author-labeled** atomic-claim
+benchmark over 7 **fictional** source documents. For 22 already
+structured product-field assertions, the deterministic source guard
+classifies evidence as Supported, Contradicted, Unsupported or
+Ambiguous; another four free-text claims **abstain for blind human
+review**. Author-label agreement on the engineered typed fixture was
+22/22, versus 8/22 for a naive citation-ID-only control. These figures
+are **not model accuracy**: no real Qwen output was newly labeled,
+no semantic extraction was evaluated, and no independent annotator has
+reviewed the cases. A 26-row blind-review CSV was generated with cited
+excerpts but without the author's gold labels.
+
+See the [Stage 3.4 evaluation protocol and real offline results](
+docs/stage34_atomic_claim_grounding_20261122.md).
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pytest
+python -m recsys.evaluation.atomic_claims \
+  --output artifacts/evaluation/stage34-atomic-claims.json \
+  --blind-review-csv artifacts/evaluation/stage34-blind-review.csv
+```
+
 ## Design priorities
 
 - **Evidence and provenance:** catalog SHA-256, explicit source references,
@@ -234,6 +261,7 @@ and [measured real Qwen results](docs/stage33_real_qwen_results_20261122.md).
 - [Recorded Stage 3.2 replay and fictional source-audit results](docs/stage32_recorded_results_20261122.md)
 - [Stage 3.3 live reliability and conflict-aware source guard protocol](docs/stage33_live_reliability_protocol.md)
 - [Measured Stage 3.3 real Qwen reliability and source-guard results](docs/stage33_real_qwen_results_20261122.md)
+- [Stage 3.4 authored atomic-claim audit and blind human-review protocol](docs/stage34_atomic_claim_grounding_20261122.md)
 - [Provenance and reuse](docs/PROVENANCE.md)
 
 ## Provenance
